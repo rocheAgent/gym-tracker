@@ -110,6 +110,7 @@ export default function Routines() {
                 <X size={20} />
               </button>
             </div>
+
             <div className="modal-body">
               <div className="input-group">
                 <label className="label">Nombre de la Rutina</label>
@@ -121,7 +122,7 @@ export default function Routines() {
                   onChange={(e) => setNewRoutine({ ...newRoutine, name: e.target.value })}
                 />
               </div>
-              
+
               <div className="exercises-added">
                 <label className="label">Ejercicios</label>
                 {newRoutine.exercises.length === 0 ? (
@@ -139,28 +140,28 @@ export default function Routines() {
                   </div>
                 )}
               </div>
-              
-              <button 
+
+              <button
                 className="btn btn-secondary"
                 onClick={() => setShowExercisePicker(true)}
               >
                 <Plus size={18} />
                 Agregar Ejercicio
               </button>
-              
-              </div><div className="modal-footer">
-                <button className="btn btn-ghost" onClick={() => setShowModal(false)}>
-                  Cancelar
-                </button>
-                <button className="btn btn-primary" onClick={saveRoutine}>
-                  Guardar Rutina
-                </button>
-              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button className="btn btn-ghost" onClick={() => setShowModal(false)}>
+                Cancelar
+              </button>
+              <button className="btn btn-primary" onClick={saveRoutine}>
+                Guardar Rutina
+              </button>
             </div>
           </div>
         </div>
       )}
-      
+
       {showExercisePicker && (
         <div className="modal-overlay" onClick={() => setShowExercisePicker(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
