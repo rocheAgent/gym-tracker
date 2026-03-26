@@ -148,7 +148,7 @@ export default function Routines() {
                 Agregar Ejercicio
               </button>
               
-              <div className="modal-footer">
+              </div><div className="modal-footer">
                 <button className="btn btn-ghost" onClick={() => setShowModal(false)}>
                   Cancelar
                 </button>

@@ -78,6 +78,8 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  max-height: 200px;
+  overflow-y: auto;
 }
 
 .exercise-tag {
@@ -103,17 +105,145 @@
   color: var(--accent-red);
 }
 
+/* Modal improvements - Fixed footer positioning */
+.modal-body {
+  overflow-y: auto;
+  max-height: calc(80vh - 140px);
+  padding-right: 4px;
+}
+
 .modal-footer {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  margin-top: 24px;
+  margin-top: auto;
   padding-top: 16px;
   border-top: 1px solid var(--border-color);
+  background: var(--bg-secondary);
 }
 
+/* Mobile responsive improvements */
 @media (max-width: 768px) {
   .routines-grid {
     grid-template-columns: 1fr;
+  }
+  
+  /* Modal overlay adjustments for mobile */
+  .modal-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+  
+  /* Modal takes full width on mobile with bottom sheet style */
+  .modal {
+    max-height: 90vh;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    max-width: 100%;
+    width: 100%;
+  }
+  
+  .routine-modal {
+    max-width: 100%;
+  }
+  
+  /* Scrollable body with proper max-height */
+  .modal-body {
+    max-height: calc(90vh - 140px);
+    padding: 16px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Footer sticks to bottom */
+  .modal-footer {
+    flex-direction: row;
+    gap: 12px;
+    padding: 16px;
+    margin: 0;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+  }
+  
+  .modal-footer .btn {
+    flex: 1;
+    justify-content: center;
+  }
+  
+  .modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .modal-header h2 {
+    font-size: 17px;
+    font-weight: 600;
+  }
+  
+  /* Smaller exercise tags on mobile */
+  .exercise-tag {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+  
+  /* Input adjustments */
+  .input-group {
+    margin-bottom: 16px;
+  }
+  
+  .input {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
+  /* Button adjustments */
+  .btn {
+    min-height: 44px; /* Better touch targets */
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 380px) {
+  .modal {
+    max-height: 95vh;
+  }
+  
+  .modal-body {
+    max-height: calc(95vh - 130px);
+    padding: 12px 16px;
+  }
+  
+  .modal-footer {
+    padding: 12px 16px;
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+  
+  .modal-footer .btn {
+    width: 100%;
+  }
+  
+  .routine-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .routine-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  
+  .routine-card {
+    padding: 16px;
+  }
+}
+
+/* Landscape mode on mobile */
+@media (max-height: 500px) and (max-width: 768px) {
+  .modal {
+    max-height: 95vh;
+  }
+  
+  .modal-body {
+    max-height: calc(95vh - 120px);
   }
 }
