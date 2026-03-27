@@ -145,6 +145,8 @@ export default function Exercises() {
                   onChange={(e) => setNewExercise({ ...newExercise, equipment: e.target.value })}
                 />
               </div>
+            </div>
+            <div className="modal-footer">
               <button className="btn btn-primary" onClick={addExercise}>
                 <Plus size={18} />
                 Agregar Ejercicio

@@ -116,8 +116,8 @@
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  margin-top: auto;
-  padding-top: 16px;
+  flex-shrink: 0;
+  padding: 16px 20px;
   border-top: 1px solid var(--border-color);
   background: var(--bg-secondary);
 }
