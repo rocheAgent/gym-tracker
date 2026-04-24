@@ -16,6 +16,14 @@ export default function Dashboard() {
   const [sessionExercises, setSessionExercises] = useState([]);
   const [showExerciseSelect, setShowExerciseSelect] = useState(false);
   const [confirmClear, setConfirmClear] = useState(null);
+  const [confirmReset, setConfirmReset] = useState(false);
+
+  const handleResetAllData = () => {
+    localStorage.removeItem('exercises');
+    localStorage.removeItem('routines');
+    localStorage.removeItem('sessions');
+    window.location.reload();
+  };
 
   const handleRoutineChange = (routineName) => {
     setActiveRoutine(routineName);
@@ -121,17 +129,26 @@ export default function Dashboard() {
             day: 'numeric',
           })}</p>
         </div>
-        {sessions.length > 0 && (
-          <div className="last-session">
-            <span className="label">Última sesión:</span>
-            <span className="value">
-              {new Date(sessions[0].date + 'T00:00:00').toLocaleDateString('es-ES', {
-                day: 'numeric',
-                month: 'short',
-              })}
-            </span>
-          </div>
-        )}
+        <div className="header-right">
+          {sessions.length > 0 && (
+            <div className="last-session">
+              <span className="label">Última sesión:</span>
+              <span className="value">
+                {new Date(sessions[0].date + 'T00:00:00').toLocaleDateString('es-ES', {
+                  day: 'numeric',
+                  month: 'short',
+                })}
+              </span>
+            </div>
+          )}
+          <button
+            className="btn-ghost btn-reset"
+            title="Restablecer todos los datos"
+            onClick={() => setConfirmReset(true)}
+          >
+            ↻
+          </button>
+        </div>
       </header>
 
       <div className="session-config">
@@ -165,7 +182,6 @@ export default function Dashboard() {
         {sessionExercises.length === 0 ? (
           <div className="empty-state">
             <p>Agrega ejercicios para comenzar tu sesión</p>
-            <p className="hint">Selecciona una rutina o agrega ejercicios manualmente</p>
           </div>
         ) : (
           sessionExercises.map((exercise, exIndex) => (
@@ -300,6 +316,15 @@ export default function Dashboard() {
           onCancel={() => {
             setConfirmClear(null);
           }}
+        />
+      )}
+
+      {confirmReset && (
+        <ConfirmDialog
+          title="¿Restablecer todos los datos?"
+          message="Se eliminarán todas las sesiones, rutinas y ejercicios guardados. No se puede deshacer."
+          onConfirm={handleResetAllData}
+          onCancel={() => setConfirmReset(false)}
         />
       )}
     </div>

@@ -8,6 +8,13 @@
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 32px;
+  gap: 16px;
+}
+
+.header-right {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
 }
 
 .dashboard-header h1 {
@@ -39,6 +46,19 @@
   font-size: 14px;
   color: var(--accent-red);
   font-weight: 600;
+}
+
+.btn-reset {
+  font-size: 18px;
+  color: var(--text-muted);
+  padding: 4px 6px;
+  min-width: auto;
+  min-height: auto;
+  transition: color 0.2s ease;
+}
+
+.btn-reset:hover {
+  color: var(--accent-red);
 }
 
 .session-config {
