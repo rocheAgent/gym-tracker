@@ -361,7 +361,8 @@ input, textarea, select {
   }
 
   .modal {
-    max-height: 90vh;
+    max-height: 85vh;
+    min-height: 50vh;
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
     max-width: 100%;
     width: 100%;
@@ -377,7 +378,6 @@ input, textarea, select {
   }
 
   .modal-body {
-    max-height: calc(90vh - 130px);
     padding: 16px 20px;
     -webkit-overflow-scrolling: touch;
   }
@@ -398,6 +398,7 @@ input, textarea, select {
 
   .exercise-list {
     padding: 8px 12px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
   }
 
   .exercise-option {

@@ -201,8 +201,8 @@ export default function Dashboard() {
 
               <div className="sets-header">
                 <span>Serie</span>
-                <span>Peso (kg)</span>
                 <span>Reps</span>
+                <span>Peso (kg)</span>
                 <span></span>
               </div>
 
@@ -213,15 +213,15 @@ export default function Dashboard() {
                     type="number"
                     className="input set-input"
                     placeholder="0"
-                    value={set.weight}
-                    onChange={(e) => updateSet(exIndex, setIndex, 'weight', e.target.value)}
+                    value={set.reps}
+                    onChange={(e) => updateSet(exIndex, setIndex, 'reps', e.target.value)}
                   />
                   <input
                     type="number"
                     className="input set-input"
                     placeholder="0"
-                    value={set.reps}
-                    onChange={(e) => updateSet(exIndex, setIndex, 'reps', e.target.value)}
+                    value={set.weight}
+                    onChange={(e) => updateSet(exIndex, setIndex, 'weight', e.target.value)}
                   />
                   <div className="set-actions">
                     <button
