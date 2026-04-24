@@ -1,55 +1,46 @@
 export const defaultExercises = [
   // Pecho
-  { id: 'press-banca', name: 'Press de Banca', muscle: 'Pecho', equipment: 'Maquina' },
-  { id: 'press-banca-mancuernas', name: 'Press de Banca Mancuernas', muscle: 'Pecho', equipment: 'Mancuernas' },
-  { id: 'flexiones', name: 'Flexiones', muscle: 'Pecho', equipment: 'Peso Corporal' },
-  { id: 'cruces-polea', name: 'Cruces en Polea', muscle: 'Pecho', equipment: 'Polea' },
-  { id: 'press-inclinado', name: 'Press Inclinado', muscle: 'Pecho', equipment: 'Maquina' },
-  
+  { id: 'bench-press', name: 'Bench Press', muscle: 'Pecho', equipment: 'Barra' },
+  { id: 'press-inclinado-mancuerna', name: 'Press Inclinado con Mancuerna', muscle: 'Pecho', equipment: 'Mancuernas' },
+  { id: 'flys-maquina', name: 'Flys en Máquina', muscle: 'Pecho', equipment: 'Máquina' },
+
   // Espalda
-  { id: 'dominadas', name: 'Dominadas', muscle: 'Espalda', equipment: 'Peso Corporal' },
-  { id: 'remo-con-barra', name: 'Remo con Barra', muscle: 'Espalda', equipment: 'Barra' },
-  { id: 'remo-mancuerna', name: 'Remo con Mancuerna', muscle: 'Espalda', equipment: 'Mancuernas' },
-  { id: 'lat-pull', name: 'Lat Pull Down', muscle: 'Espalda', equipment: 'Maquina' },
-  { id: 'polea-alta', name: 'Polea Alta', muscle: 'Espalda', equipment: 'Polea' },
-  
-  // Hombros
-  { id: 'press-militar', name: 'Press Militar', muscle: 'Hombros', equipment: 'Barra' },
-  { id: 'press-mancuernas', name: 'Press con Mancuernas', muscle: 'Hombros', equipment: 'Mancuernas' },
-  { id: 'elevaciones-laterales', name: 'Elevaciones Laterales', muscle: 'Hombros', equipment: 'Mancuernas' },
-  { id: 'face-pull', name: 'Face Pull', muscle: 'Hombros', equipment: 'Polea' },
-  { id: 'encogimientos', name: 'Encogimientos', muscle: 'Hombros', equipment: 'Mancuernas' },
-  
-  // Brazos
-  { id: 'curl-barra', name: 'Curl con Barra', muscle: 'Biceps', equipment: 'Barra' },
-  { id: 'curl-mancuernas', name: 'Curl con Mancuernas', muscle: 'Biceps', equipment: 'Mancuernas' },
-  { id: 'curl-martillo', name: 'Curl Martillo', muscle: 'Biceps', equipment: 'Mancuernas' },
-  { id: 'tricep-patada', name: 'Patada de Tricep', muscle: 'Tricep', equipment: 'Mancuernas' },
-  { id: 'tricep-polea', name: 'Tricep en Polea', muscle: 'Tricep', equipment: 'Polea' },
-  { id: 'fondos', name: 'Fondos', muscle: 'Tricep', equipment: 'Peso Corporal' },
-  
-  // Piernas
-  { id: 'sentadilla', name: 'Sentadilla', muscle: 'Piernas', equipment: 'Barra' },
-  { id: 'prensa', name: 'Prensa', muscle: 'Piernas', equipment: 'Maquina' },
-  { id: 'leg-press', name: 'Leg Press', muscle: 'Piernas', equipment: 'Maquina' },
-  { id: 'curl-piernas', name: 'Curl de Piernas', muscle: 'Piernas', equipment: 'Maquina' },
-  { id: 'extension-piernas', name: 'Extensión de Piernas', muscle: 'Piernas', equipment: 'Maquina' },
-  { id: 'elevacion-pantorrillas', name: 'Elevación de Pantorrillas', muscle: 'Piernas', equipment: 'Maquina' },
-  { id: 'lunges', name: 'Lunges', muscle: 'Piernas', equipment: 'Mancuernas' },
-  
+  { id: 'jalon-pecho', name: 'Jalón al Pecho', muscle: 'Espalda', equipment: 'Máquina' },
+  { id: 'remos-t', name: 'Remos T', muscle: 'Espalda', equipment: 'Máquina' },
+
+  // Hombro
+  { id: 'elevaciones-laterales', name: 'Elevaciones Laterales', muscle: 'Hombro', equipment: 'Mancuernas' },
+  { id: 'press-militar', name: 'Press Militar', muscle: 'Hombro', equipment: 'Barra' },
+  { id: 'elevaciones-acostado', name: 'Elevaciones Acostado', muscle: 'Hombro', equipment: 'Mancuernas' },
+
+  // Bícep
+  { id: 'curl-barra-z', name: 'Curl en Barra Z', muscle: 'Bícep', equipment: 'Barra Z' },
+  { id: 'martillos', name: 'Martillos', muscle: 'Bícep', equipment: 'Mancuernas' },
+
+  // Trícep
+  { id: 'tricep-polea', name: 'Trícep con Polea', muscle: 'Trícep', equipment: 'Polea' },
+  { id: 'skullcrusher', name: 'Skullcrusher', muscle: 'Trícep', equipment: 'Barra Z' },
+
+  // Pierna
+  { id: 'sentadilla-hack', name: 'Sentadilla Hack', muscle: 'Pierna', equipment: 'Máquina' },
+  { id: 'prensa-pierna', name: 'Prensa de Pierna', muscle: 'Pierna', equipment: 'Máquina' },
+  { id: 'extensiones-cuadricep', name: 'Extensiones de Cuádricep', muscle: 'Pierna', equipment: 'Máquina' },
+  { id: 'curl-femoral', name: 'Curl Femoral', muscle: 'Pierna', equipment: 'Máquina' },
+  { id: 'elevacion-pantorrilla', name: 'Elevación Pantorrilla', muscle: 'Pierna', equipment: 'Máquina' },
+
   // Core
   { id: 'crunches', name: 'Crunches', muscle: 'Core', equipment: 'Peso Corporal' },
   { id: 'planchas', name: 'Planchas', muscle: 'Core', equipment: 'Peso Corporal' },
-  { id: 'rusian-twist', name: 'Russian Twist', muscle: 'Core', equipment: 'Peso Corporal' },
+  { id: 'russian-twist', name: 'Russian Twist', muscle: 'Core', equipment: 'Peso Corporal' },
   { id: 'leg-raises', name: 'Leg Raises', muscle: 'Core', equipment: 'Peso Corporal' },
 ];
 
 export const muscleGroups = [
   'Pecho',
-  'Espalda', 
-  'Hombros',
-  'Biceps',
-  'Tricep',
-  'Piernas',
-  'Core'
+  'Espalda',
+  'Hombro',
+  'Bícep',
+  'Trícep',
+  'Pierna',
+  'Core',
 ];

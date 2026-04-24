@@ -3,36 +3,38 @@
   margin: 0 auto;
 }
 
-.empty-state {
-  text-align: center;
-  padding: 64px 24px;
-  background: var(--bg-secondary);
-  border-radius: var(--radius-md);
-  border: 1px dashed var(--border-color);
-}
-
-.empty-state p {
-  color: var(--text-secondary);
-  margin-bottom: 8px;
-}
-
-.empty-state .hint {
-  font-size: 14px;
-  color: var(--text-muted);
-}
-
-.filters {
+.history-page .page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   margin-bottom: 24px;
 }
 
+.history-page .page-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.history-page .page-header .subtitle {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+/* empty-state uses shared class from index.css */
+
+.history-filters {
+  margin-bottom: 20px;
+}
+
 .filter-select {
-  max-width: 250px;
+  max-width: 240px;
 }
 
 .sessions-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .session-card {
@@ -44,37 +46,54 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px;
+  padding: 18px 20px;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: background 0.15s ease;
+  gap: 12px;
 }
 
 .session-header:hover {
   background: var(--bg-tertiary);
 }
 
-.session-info h3 {
-  font-size: 16px;
+.session-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.session-date {
+  font-size: 15px;
   font-weight: 600;
-  margin-bottom: 6px;
+  text-transform: capitalize;
+  white-space: nowrap;
 }
 
 .routine-badge {
   display: inline-block;
-  padding: 4px 10px;
+  padding: 3px 10px;
   background: var(--accent-red-dim);
   color: var(--accent-red);
   border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  width: fit-content;
 }
 
 .session-stats {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   color: var(--text-secondary);
-  font-size: 14px;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.stat {
+  white-space: nowrap;
 }
 
 .session-details {
@@ -83,13 +102,15 @@
 }
 
 .session-notes {
-  padding: 16px 0;
+  padding: 14px 0;
   border-bottom: 1px solid var(--border-color);
 }
 
 .session-notes .label {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
   margin-bottom: 4px;
 }
 
@@ -99,45 +120,55 @@
 }
 
 .session-exercises {
-  padding: 16px 0;
+  padding: 14px 0;
 }
 
 .history-exercise {
-  margin-bottom: 16px;
+  margin-bottom: 14px;
+}
+
+.history-exercise:last-child {
+  margin-bottom: 0;
 }
 
 .history-exercise h4 {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   margin-bottom: 8px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
 .sets-summary {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
 }
 
 .set-pill {
-  padding: 6px 10px;
+  padding: 4px 10px;
   background: var(--bg-tertiary);
   border-radius: 6px;
   font-size: 12px;
   color: var(--text-secondary);
+  font-weight: 500;
 }
 
 .set-pill.completed {
-  background: rgba(46, 204, 113, 0.15);
+  background: rgba(46, 204, 113, 0.12);
   color: var(--success);
 }
 
 .session-actions {
-  padding-top: 16px;
+  padding-top: 14px;
   border-top: 1px solid var(--border-color);
 }
 
 .delete-session {
   color: var(--text-muted);
+  font-size: 13px;
+  gap: 6px;
 }
 
 .delete-session:hover {
@@ -146,13 +177,16 @@
 
 @media (max-width: 768px) {
   .session-header {
-    flex-direction: column;
     align-items: flex-start;
-    gap: 12px;
   }
-  
+
   .session-stats {
+    gap: 8px;
+    font-size: 12px;
+  }
+
+  .filter-select {
+    max-width: 100%;
     width: 100%;
-    justify-content: space-between;
   }
 }
