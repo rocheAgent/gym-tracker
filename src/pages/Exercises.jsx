@@ -105,7 +105,8 @@ export default function Exercises() {
   const allGroups = [...new Set(exercises.map(e => e.muscle))].sort();
 
   return (
-    <div className="exercises-page fade-in">
+    <>
+      <div className="exercises-page fade-in">
       <header className="page-header">
         <div>
           <h1>Ejercicios</h1>
@@ -196,8 +197,6 @@ export default function Exercises() {
       <p className="media-attribution">
         Ilustraciones de Bryl Lim — <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer">CC BY-SA 4.0</a>
       </p>
-      <ScrollToTopButton />
-
       {showAddModal && (
         <ModalPortal>
           <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
@@ -324,6 +323,8 @@ export default function Exercises() {
           onCancel={() => setConfirmDelete(null)}
         />
       )}
-    </div>
+      </div>
+      <ScrollToTopButton />
+    </>
   );
 }

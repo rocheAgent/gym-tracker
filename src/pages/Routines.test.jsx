@@ -22,6 +22,7 @@ describe('Routines modals', () => {
     const exerciseList = document.querySelector('.routine-exercise-picker .exercise-list');
     const scrollTo = vi.fn();
     exerciseList.scrollTo = scrollTo;
+    expect(screen.queryByRole('button', { name: 'Volver arriba' })).not.toBeInTheDocument();
     Object.defineProperty(exerciseList, 'scrollTop', { configurable: true, value: 301 });
     fireEvent.scroll(exerciseList);
 

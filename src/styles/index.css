@@ -318,6 +318,10 @@ input, textarea, select {
   -webkit-overflow-scrolling: touch;
 }
 
+.routine-exercise-picker .exercise-list {
+  padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+}
+
 .exercise-group-label {
   padding: 8px 12px 4px;
   font-size: 11px;
