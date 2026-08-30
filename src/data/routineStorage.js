@@ -1,10 +1,22 @@
 import { v4 as uuidv4 } from 'uuid';
+import { getAssetUrl, getExercise } from '@bryllim/workout-guide';
 
 export const emptyTarget = () => ({ weight: '', sets: '', reps: '' });
 
 export function normalizeRoutineExercise(exercise) {
+  const catalogExercise = getExercise(exercise.id);
+  const exerciseWithoutLegacyMedia = { ...exercise };
+  const legacyImage = exerciseWithoutLegacyMedia.image;
+  delete exerciseWithoutLegacyMedia.image;
+  delete exerciseWithoutLegacyMedia.gif;
+
   return {
-    ...exercise,
+    ...exerciseWithoutLegacyMedia,
+    ...(catalogExercise
+      ? { id: catalogExercise.slug, image: getAssetUrl(catalogExercise.slug, 1) }
+      : exercise.isCustom && legacyImage
+        ? { image: legacyImage }
+        : {}),
     target: {
       ...emptyTarget(),
       ...(exercise.target || exercise.goal || {}),
