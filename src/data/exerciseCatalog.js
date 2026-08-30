@@ -1,42 +1,51 @@
-const bodyPartLabels = {
-  back: 'Espalda',
-  cardio: 'Cardio',
-  chest: 'Pecho',
-  'lower arms': 'Antebrazo',
-  'lower legs': 'Pantorrilla',
-  neck: 'Cuello',
-  shoulders: 'Hombro',
-  'upper arms': 'Brazos',
-  'upper legs': 'Pierna',
-  waist: 'Core',
+import {
+  exercises,
+  getAssetUrl,
+  getExercise,
+  searchExercises,
+} from '@bryllim/workout-guide';
+
+const muscleLabels = {
+  Back: 'Espalda',
+  Biceps: 'Bícep',
+  Chest: 'Pecho',
+  Core: 'Core',
+  Glutes: 'Glúteos',
+  Hamstrings: 'Isquiotibiales',
+  'Lower Back': 'Espalda baja',
+  'Lower Legs': 'Pantorrilla',
+  Quadriceps: 'Cuádriceps',
+  Shoulders: 'Hombro',
+  Triceps: 'Trícep',
+  'Upper Back': 'Espalda alta',
 };
 
-export function mapDatasetExercise(exercise) {
-  const baseUrl = import.meta.env.BASE_URL;
+const equipmentLabels = {
+  Barbell: 'Barra',
+  Bodyweight: 'Peso corporal',
+  Cable: 'Polea',
+  Dumbbell: 'Mancuernas',
+  Machine: 'Máquina',
+};
 
+export function mapWorkoutExercise(exercise) {
   return {
-    id: exercise.id,
+    id: exercise.slug,
     name: exercise.name,
-    muscle: bodyPartLabels[exercise.body_part] || exercise.body_part,
-    equipment: exercise.equipment,
-    image: `${baseUrl}exercises/${exercise.image}`,
-    gif: `${baseUrl}exercises/${exercise.gif_url}`,
-    instructions: exercise.instructions.es,
-    instructionSteps: exercise.instruction_steps.es,
-    target: exercise.target,
-    muscleGroup: exercise.muscle_group,
-    secondaryMuscles: exercise.secondary_muscles,
+    muscle: muscleLabels[exercise.primaryMuscle] || exercise.primaryMuscle,
+    equipment: equipmentLabels[exercise.equipment] || exercise.equipment,
+    exerciseType: exercise.exerciseType,
+    secondaryMuscles: exercise.secondaryMuscles,
+    isStretch: exercise.isStretch,
+    image: getAssetUrl(exercise.slug, 1),
+    frames: exercise.frames.map(frame => ({
+      ...frame,
+      url: getAssetUrl(exercise.slug, frame.index),
+    })),
     attribution: exercise.attribution,
   };
 }
 
-export async function loadExerciseCatalog() {
-  const response = await fetch(`${import.meta.env.BASE_URL}exercises/data/exercises.json`);
+export const workoutExercises = exercises.map(mapWorkoutExercise);
 
-  if (!response.ok) {
-    throw new Error(`No se pudo cargar el catálogo (${response.status})`);
-  }
-
-  const exercises = await response.json();
-  return exercises.map(mapDatasetExercise);
-}
+export { getExercise, searchExercises };

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useRoutineStorage } from '../hooks/useRoutineStorage';
-import { muscleGroups } from '../data/defaultExercises';
 import { useExercises } from '../hooks/useExercises';
 import { Plus, X, Save, Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
@@ -9,6 +8,7 @@ import './Dashboard.css';
 
 export default function Dashboard() {
   const { exercises } = useExercises();
+  const muscleGroups = [...new Set(exercises.map(exercise => exercise.muscle))].sort();
   const [routines] = useRoutineStorage('routines', []);
   const [sessions, setSessions] = useRoutineStorage('sessions', []);
 
