@@ -10,6 +10,7 @@ beforeEach(() => {
 describe('Routines modals', () => {
   it('opens accessible centered modal flows and scrolls only the exercise picker', async () => {
     const user = userEvent.setup();
+    const pageScrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
 
     render(<Routines />);
 
@@ -23,13 +24,21 @@ describe('Routines modals', () => {
     const scrollTo = vi.fn();
     exerciseList.scrollTo = scrollTo;
     expect(screen.queryByRole('button', { name: 'Volver arriba' })).not.toBeInTheDocument();
+
+    Object.defineProperty(exerciseList, 'scrollTop', { configurable: true, value: 300 });
+    fireEvent.scroll(exerciseList);
+    expect(screen.queryByRole('button', { name: 'Volver arriba' })).not.toBeInTheDocument();
+
     Object.defineProperty(exerciseList, 'scrollTop', { configurable: true, value: 301 });
     fireEvent.scroll(exerciseList);
 
     const returnButton = await screen.findByRole('button', { name: 'Volver arriba' });
-    await user.click(returnButton);
+    expect(returnButton).toHaveAttribute('title', 'Volver arriba');
+    returnButton.focus();
+    await user.keyboard('{Enter}');
 
     expect(scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
+    expect(pageScrollTo).not.toHaveBeenCalled();
     expect(screen.getByRole('dialog', { name: 'Seleccionar Ejercicio' })).toBeInTheDocument();
   });
 });
