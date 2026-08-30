@@ -37,7 +37,7 @@ export default function Dashboard() {
     const populated = routine.exercises.map(({ target, ...ex }) => ({
       ...ex,
       sessionId: uuidv4(),
-      sets: Array.from({ length: Number.parseInt(target.sets, 10) > 0 ? Number.parseInt(target.sets, 10) : 1 }, () => ({
+      sets: Array.from({ length: Number.isInteger(Number(target.sets)) && Number(target.sets) > 0 ? Number(target.sets) : 1 }, () => ({
         id: uuidv4(),
         weight: target.weight,
         reps: target.reps,
@@ -161,8 +161,9 @@ export default function Dashboard() {
 
       <div className="session-config">
         <div className="input-group">
-          <label className="label">Rutina (opcional)</label>
+          <label className="label" htmlFor="session-routine">Rutina (opcional)</label>
           <select
+            id="session-routine"
             className="input"
             value={activeRoutineId}
             onChange={(e) => handleRoutineChange(e.target.value)}
@@ -175,8 +176,9 @@ export default function Dashboard() {
         </div>
 
         <div className="input-group">
-          <label className="label">Notas</label>
+          <label className="label" htmlFor="session-notes">Notas</label>
           <input
+            id="session-notes"
             type="text"
             className="input"
             placeholder="Añadir notas..."
