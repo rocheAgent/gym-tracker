@@ -146,6 +146,55 @@ describe('MyRoutine', () => {
     expect(screen.getByText('No hay historial para este ejercicio')).toBeInTheDocument();
   });
 
+  it('saves exercise targets without changing session history', async () => {
+    persistRoutines([{ id: 'push', name: 'Empuje', exercises: [{ id: 'bench', name: 'Press banca' }] }]);
+    window.localStorage.setItem('sessions', JSON.stringify([{
+      id: 'session', routineId: 'push', date: '2026-08-20',
+      exercises: [{ id: 'bench', sets: [{ weight: '50', reps: '10' }] }],
+    }]));
+    const user = userEvent.setup();
+
+    renderMyRoutine('/my-routine/push');
+    await user.click(screen.getByRole('button', { name: /Press banca/i }));
+    await user.type(screen.getByLabelText('Peso (kg)'), '60');
+    await user.type(screen.getByLabelText('Series'), '4');
+    await user.type(screen.getByLabelText('Repeticiones'), '8');
+    await user.click(screen.getByRole('button', { name: /Guardar objetivos/i }));
+
+    expect(JSON.parse(window.localStorage.getItem('routines'))[0].exercises[0].target)
+      .toEqual({ weight: '60', sets: '4', reps: '8' });
+    expect(JSON.parse(window.localStorage.getItem('sessions'))[0].exercises[0].sets[0])
+      .toEqual({ weight: '50', reps: '10' });
+  });
+
+  it('keeps empty targets editable and discards changes on cancel', async () => {
+    persistRoutines([{ id: 'push', name: 'Empuje', exercises: [{ id: 'bench', name: 'Press banca' }] }]);
+    const user = userEvent.setup();
+
+    renderMyRoutine('/my-routine/push');
+    await user.click(screen.getByRole('button', { name: /Press banca/i }));
+    expect(screen.getByLabelText('Peso (kg)')).toHaveValue(null);
+    expect(screen.getByLabelText('Series')).toHaveValue(null);
+    expect(screen.getByLabelText('Repeticiones')).toHaveValue(null);
+    await user.type(screen.getByLabelText('Series'), '5');
+    await user.click(screen.getByRole('button', { name: 'Cancelar' }));
+
+    expect(JSON.parse(window.localStorage.getItem('routines'))[0].exercises[0].target)
+      .toEqual({ weight: '', sets: '', reps: '' });
+  });
+
+  it('requires a positive integer for the target series count', async () => {
+    persistRoutines([{ id: 'push', name: 'Empuje', exercises: [{ id: 'bench', name: 'Press banca' }] }]);
+    const user = userEvent.setup();
+
+    renderMyRoutine('/my-routine/push');
+    await user.click(screen.getByRole('button', { name: /Press banca/i }));
+    await user.type(screen.getByLabelText('Series'), '1.5');
+
+    expect(screen.getByText(/Las series deben ser/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Guardar objetivos/i })).toBeDisabled();
+  });
+
   it('guides an empty selected routine to Rutinas', async () => {
     persistRoutines([{ id: 'empty', name: 'Descanso', exercises: [] }]);
     const user = userEvent.setup();

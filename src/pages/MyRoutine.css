@@ -90,6 +90,29 @@
   max-width: 540px;
 }
 
+.exercise-targets {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 4px;
+}
+
+.exercise-targets h3 {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.exercise-target-fields {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.input-error {
+  color: var(--accent-red);
+  font-size: 12px;
+}
+
 .exercise-history-context {
   color: var(--text-secondary);
   font-size: 13px;
@@ -180,6 +203,10 @@
 }
 
 @media (max-width: 768px) {
+  .exercise-target-fields {
+    grid-template-columns: 1fr;
+  }
+
   .my-routine-exercise {
     align-items: flex-start;
     flex-direction: column;

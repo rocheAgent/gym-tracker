@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, ChevronRight, ClipboardList, X } from 'lucide-react';
+import { ArrowLeft, ChevronRight, ClipboardList, Save, X } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { useRoutineStorage } from '../hooks/useRoutineStorage';
 import './MyRoutine.css';
 
 function Target({ target }) {
   const details = [
-    target?.sets && `${target.sets} series`,
-    target?.reps && `${target.reps} reps`,
-    target?.weight && `${target.weight} kg`,
+    target?.sets !== '' && target?.sets != null && `${target.sets} series`,
+    target?.reps !== '' && target?.reps != null && `${target.reps} reps`,
+    target?.weight !== '' && target?.weight != null && `${target.weight} kg`,
   ].filter(Boolean);
 
   return details.length > 0 ? (
@@ -39,8 +39,10 @@ function latestExerciseSession(sessions, routineId, exerciseId) {
     })[0] || null;
 }
 
-function ExerciseHistoryModal({ routine, exercise, session, onClose }) {
+function ExerciseHistoryModal({ routine, exercise, session, onClose, onSaveTarget }) {
   const sessionExercise = session?.exercises.find(item => item.id === exercise.id);
+  const [target, setTarget] = useState({ weight: '', sets: '', reps: '', ...exercise.target });
+  const invalidSets = target.sets !== '' && (!Number.isInteger(Number(target.sets)) || Number(target.sets) < 1);
 
   useEffect(() => {
     const handleKeyDown = event => {
@@ -71,6 +73,49 @@ function ExerciseHistoryModal({ routine, exercise, session, onClose }) {
         </div>
 
         <div className="modal-body">
+          <section className="exercise-targets">
+            <h3>Objetivos para la próxima sesión</h3>
+            <div className="exercise-target-fields">
+              <div className="input-group">
+                <label className="label" htmlFor="target-weight">Peso (kg)</label>
+                <input
+                  id="target-weight"
+                  className="input"
+                  type="number"
+                  min="0"
+                  step="any"
+                  value={target.weight}
+                  onChange={event => setTarget({ ...target, weight: event.target.value })}
+                />
+              </div>
+              <div className="input-group">
+                <label className="label" htmlFor="target-sets">Series</label>
+                <input
+                  id="target-sets"
+                  className="input"
+                  type="number"
+                  min="1"
+                  step="1"
+                  value={target.sets}
+                  onChange={event => setTarget({ ...target, sets: event.target.value })}
+                />
+              </div>
+              <div className="input-group">
+                <label className="label" htmlFor="target-reps">Repeticiones</label>
+                <input
+                  id="target-reps"
+                  className="input"
+                  type="number"
+                  min="1"
+                  step="1"
+                  value={target.reps}
+                  onChange={event => setTarget({ ...target, reps: event.target.value })}
+                />
+              </div>
+            </div>
+            {invalidSets && <p className="input-error">Las series deben ser un número entero mayor que cero.</p>}
+          </section>
+
           {!session ? (
             <div className="empty-state exercise-history-empty">
               <p>No hay historial para este ejercicio</p>
@@ -98,6 +143,13 @@ function ExerciseHistoryModal({ routine, exercise, session, onClose }) {
             </div>
           )}
         </div>
+        <div className="modal-footer">
+          <button className="btn btn-secondary" onClick={onClose}>Cancelar</button>
+          <button className="btn btn-primary" disabled={invalidSets} onClick={() => onSaveTarget(target)}>
+            <Save size={17} />
+            Guardar objetivos
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -105,10 +157,22 @@ function ExerciseHistoryModal({ routine, exercise, session, onClose }) {
 
 export default function MyRoutine() {
   const { routineId } = useParams();
-  const [routines] = useRoutineStorage('routines', []);
+  const [routines, setRoutines] = useRoutineStorage('routines', []);
   const [sessions] = useRoutineStorage('sessions', []);
   const [selectedExercise, setSelectedExercise] = useState(null);
   const selectedRoutine = routineId ? routines.find(routine => routine.id === routineId) : null;
+
+  const saveExerciseTarget = target => {
+    setRoutines(routines.map(routine => routine.id === selectedRoutine.id
+      ? {
+        ...routine,
+        exercises: routine.exercises.map(exercise => exercise.id === selectedExercise.id
+          ? { ...exercise, target }
+          : exercise),
+      }
+      : routine));
+    setSelectedExercise(null);
+  };
 
   if (routineId) {
     if (!selectedRoutine) {
@@ -172,6 +236,7 @@ export default function MyRoutine() {
             exercise={selectedExercise}
             session={latestExerciseSession(sessions, selectedRoutine.id, selectedExercise.id)}
             onClose={() => setSelectedExercise(null)}
+            onSaveTarget={saveExerciseTarget}
           />
         )}
       </div>
