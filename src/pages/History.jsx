@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { useLocalStorage } from '../hooks/useLocalStorage';
+import { useRoutineStorage } from '../hooks/useRoutineStorage';
 import { ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
 import ConfirmDialog from '../components/ConfirmDialog';
 import './History.css';
 
 export default function History() {
-  const [sessions, setSessions] = useLocalStorage('sessions', []);
+  const [sessions, setSessions] = useRoutineStorage('sessions', []);
   const [expandedSession, setExpandedSession] = useState(null);
   const [filter, setFilter] = useState('all');
   const [confirmDelete, setConfirmDelete] = useState(null);
