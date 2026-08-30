@@ -3,6 +3,7 @@ import { ArrowLeft, ChevronRight, ClipboardList, Save, X } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { useRoutineStorage } from '../hooks/useRoutineStorage';
 import { useExercises } from '../hooks/useExercises';
+import ModalPortal from '../components/ModalPortal';
 import './MyRoutine.css';
 
 function Target({ target }) {
@@ -55,104 +56,107 @@ function ExerciseHistoryModal({ routine, exercise, session, onClose, onSaveTarge
   }, [onClose]);
 
   return (
-    <div className="modal-overlay modal-overlay--history" onClick={onClose}>
-      <div
-        className="modal exercise-history-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="exercise-history-title"
-        onClick={event => event.stopPropagation()}
-      >
-        <div className="modal-header">
-          <div>
-            <h2 id="exercise-history-title">{exercise.name}</h2>
-            <p className="exercise-history-context">Última sesión en {routine.name}</p>
+    <ModalPortal>
+      <div className="modal-overlay modal-overlay--history" onClick={onClose}>
+        <div
+          className="modal exercise-history-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="exercise-history-title"
+          onClick={event => event.stopPropagation()}
+        >
+          <div className="modal-header">
+            <div>
+              <h2 id="exercise-history-title">{exercise.name}</h2>
+              <p className="exercise-history-context">Última sesión en {routine.name}</p>
+            </div>
+            <button className="btn-ghost" aria-label="Cerrar" onClick={onClose}>
+              <X size={20} />
+            </button>
           </div>
-          <button className="btn-ghost" aria-label="Cerrar" onClick={onClose}>
-            <X size={20} />
-          </button>
-        </div>
 
-        <div className="modal-body">
-          <section className="exercise-targets">
-            <h3>Objetivos para la próxima sesión</h3>
-            <div className="exercise-target-fields">
-              <div className="input-group">
-                <label className="label" htmlFor="target-weight">Peso (kg)</label>
-                <input
-                  id="target-weight"
-                  className="input"
-                  type="number"
-                  min="0"
-                  step="any"
-                  value={target.weight}
-                  onChange={event => setTarget({ ...target, weight: event.target.value })}
-                />
+          <div className="modal-body">
+            <section className="exercise-targets">
+              <h3>Objetivos para la próxima sesión</h3>
+              <div className="exercise-target-fields">
+                <div className="input-group">
+                  <label className="label" htmlFor="target-weight">Peso (kg)</label>
+                  <input
+                    id="target-weight"
+                    className="input"
+                    type="number"
+                    min="0"
+                    step="any"
+                    value={target.weight}
+                    data-modal-initial-focus="true"
+                    onChange={event => setTarget({ ...target, weight: event.target.value })}
+                  />
+                </div>
+                <div className="input-group">
+                  <label className="label" htmlFor="target-sets">Series</label>
+                  <input
+                    id="target-sets"
+                    className="input"
+                    type="number"
+                    min="1"
+                    step="1"
+                    value={target.sets}
+                    onChange={event => setTarget({ ...target, sets: event.target.value })}
+                  />
+                </div>
+                <div className="input-group">
+                  <label className="label" htmlFor="target-reps">Repeticiones</label>
+                  <input
+                    id="target-reps"
+                    className="input"
+                    type="number"
+                    min="1"
+                    step="1"
+                    value={target.reps}
+                    onChange={event => setTarget({ ...target, reps: event.target.value })}
+                  />
+                </div>
               </div>
-              <div className="input-group">
-                <label className="label" htmlFor="target-sets">Series</label>
-                <input
-                  id="target-sets"
-                  className="input"
-                  type="number"
-                  min="1"
-                  step="1"
-                  value={target.sets}
-                  onChange={event => setTarget({ ...target, sets: event.target.value })}
-                />
-              </div>
-              <div className="input-group">
-                <label className="label" htmlFor="target-reps">Repeticiones</label>
-                <input
-                  id="target-reps"
-                  className="input"
-                  type="number"
-                  min="1"
-                  step="1"
-                  value={target.reps}
-                  onChange={event => setTarget({ ...target, reps: event.target.value })}
-                />
-              </div>
-            </div>
-            {invalidSets && <p className="input-error">Las series deben ser un número entero mayor que cero.</p>}
-          </section>
+              {invalidSets && <p className="input-error">Las series deben ser un número entero mayor que cero.</p>}
+            </section>
 
-          {!session ? (
-            <div className="empty-state exercise-history-empty">
-              <p>No hay historial para este ejercicio</p>
-              <p className="hint">Registra una sesión con esta rutina para ver tu rendimiento.</p>
-            </div>
-          ) : (
-            <div className="exercise-history-details">
-              <div className="exercise-history-date">
-                <span className="label">Fecha</span>
-                <strong>{formatDate(session.date)}</strong>
+            {!session ? (
+              <div className="empty-state exercise-history-empty">
+                <p>No hay historial para este ejercicio</p>
+                <p className="hint">Registra una sesión con esta rutina para ver tu rendimiento.</p>
               </div>
-              <div className="exercise-history-summary">
-                <span><strong>{sessionExercise.sets.length}</strong> series</span>
-                <span><strong>{sessionExercise.sets.map(set => set.reps ?? '-').join(', ')}</strong> reps</span>
+            ) : (
+              <div className="exercise-history-details">
+                <div className="exercise-history-date">
+                  <span className="label">Fecha</span>
+                  <strong>{formatDate(session.date)}</strong>
+                </div>
+                <div className="exercise-history-summary">
+                  <span><strong>{sessionExercise.sets.length}</strong> series</span>
+                  <span><strong>{sessionExercise.sets.map(set => set.reps ?? '-').join(', ')}</strong> reps</span>
+                </div>
+                <div className="exercise-history-sets">
+                  <span className="label">Series registradas</span>
+                  {sessionExercise.sets.map((set, index) => (
+                    <div className="exercise-history-set" key={set.id || index}>
+                      <span>Serie {index + 1}</span>
+                      <strong>{set.weight ?? '-'} kg × {set.reps ?? '-'} reps</strong>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="exercise-history-sets">
-                <span className="label">Series registradas</span>
-                {sessionExercise.sets.map((set, index) => (
-                  <div className="exercise-history-set" key={set.id || index}>
-                    <span>Serie {index + 1}</span>
-                    <strong>{set.weight ?? '-'} kg × {set.reps ?? '-'} reps</strong>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-        <div className="modal-footer">
-          <button className="btn btn-secondary" onClick={onClose}>Cancelar</button>
-          <button className="btn btn-primary" disabled={invalidSets} onClick={() => onSaveTarget(target)}>
-            <Save size={17} />
-            Guardar objetivos
-          </button>
+            )}
+          </div>
+          <div className="modal-footer">
+            <button className="btn btn-secondary" onClick={onClose}>Cancelar</button>
+            <button className="btn btn-primary" disabled={invalidSets} onClick={() => onSaveTarget(target)}>
+              <Save size={17} />
+              Guardar objetivos
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </ModalPortal>
   );
 }
 
