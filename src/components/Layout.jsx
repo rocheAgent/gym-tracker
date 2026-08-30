@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom';
-import { Dumbbell, History, ListTodo, CalendarDays, Plus } from 'lucide-react';
+import { Dumbbell, History, ListTodo, CalendarDays, ClipboardList, Plus } from 'lucide-react';
 import './Layout.css';
 
 export default function Layout() {
@@ -23,6 +23,10 @@ export default function Layout() {
           <NavLink to="/routines" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
             <CalendarDays size={20} />
             <span>Rutinas</span>
+          </NavLink>
+          <NavLink to="/my-routine" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+            <ClipboardList size={20} />
+            <span>Mi rutina</span>
           </NavLink>
           <NavLink to="/history" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
             <History size={20} />
