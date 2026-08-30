@@ -1,17 +1,18 @@
 import { useState } from 'react';
-import { useLocalStorage } from '../hooks/useLocalStorage';
-import { defaultExercises, muscleGroups } from '../data/defaultExercises';
+import { useRoutineStorage } from '../hooks/useRoutineStorage';
+import { muscleGroups } from '../data/defaultExercises';
+import { useExercises } from '../hooks/useExercises';
 import { Plus, X, Save, Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import ConfirmDialog from '../components/ConfirmDialog';
 import './Dashboard.css';
 
 export default function Dashboard() {
-  const [exercises] = useLocalStorage('exercises', defaultExercises);
-  const [routines] = useLocalStorage('routines', []);
-  const [sessions, setSessions] = useLocalStorage('sessions', []);
+  const { exercises } = useExercises();
+  const [routines] = useRoutineStorage('routines', []);
+  const [sessions, setSessions] = useRoutineStorage('sessions', []);
 
-  const [activeRoutine, setActiveRoutine] = useState('');
+  const [activeRoutineId, setActiveRoutineId] = useState('');
   const [sessionNotes, setSessionNotes] = useState('');
   const [sessionExercises, setSessionExercises] = useState([]);
   const [showExerciseSelect, setShowExerciseSelect] = useState(false);
@@ -20,22 +21,28 @@ export default function Dashboard() {
 
   const handleResetAllData = () => {
     localStorage.removeItem('exercises');
+    localStorage.removeItem('customExercises');
     localStorage.removeItem('routines');
     localStorage.removeItem('sessions');
     window.location.reload();
   };
 
-  const handleRoutineChange = (routineName) => {
-    setActiveRoutine(routineName);
-    if (!routineName) return;
+  const handleRoutineChange = (routineId) => {
+    setActiveRoutineId(routineId);
+    if (!routineId) return;
 
-    const routine = routines.find(r => r.name === routineName);
+    const routine = routines.find(r => r.id === routineId);
     if (!routine || routine.exercises.length === 0) return;
 
-    const populated = routine.exercises.map(ex => ({
+    const populated = routine.exercises.map(({ target, ...ex }) => ({
       ...ex,
       sessionId: uuidv4(),
-      sets: [{ id: uuidv4(), weight: '', reps: '', completed: false }],
+      sets: Array.from({ length: Number.parseInt(target.sets, 10) > 0 ? Number.parseInt(target.sets, 10) : 1 }, () => ({
+        id: uuidv4(),
+        weight: target.weight,
+        reps: target.reps,
+        completed: false,
+      })),
     }));
 
     if (sessionExercises.length === 0) {
@@ -99,7 +106,8 @@ export default function Dashboard() {
     const newSession = {
       id: uuidv4(),
       date: new Date().toISOString().split('T')[0],
-      routine: activeRoutine || 'Libre',
+      routineId: activeRoutineId || undefined,
+      routine: routines.find(r => r.id === activeRoutineId)?.name || 'Libre',
       notes: sessionNotes,
       exercises: sessionExercises,
       createdAt: new Date().toISOString(),
@@ -108,7 +116,7 @@ export default function Dashboard() {
     setSessions([newSession, ...sessions]);
     setSessionExercises([]);
     setSessionNotes('');
-    setActiveRoutine('');
+    setActiveRoutineId('');
   };
 
   const completedSets = sessionExercises.reduce((acc, ex) =>
@@ -156,12 +164,12 @@ export default function Dashboard() {
           <label className="label">Rutina (opcional)</label>
           <select
             className="input"
-            value={activeRoutine}
+            value={activeRoutineId}
             onChange={(e) => handleRoutineChange(e.target.value)}
           >
             <option value="">Sesión libre</option>
             {routines.map(r => (
-              <option key={r.id} value={r.name}>{r.name}</option>
+              <option key={r.id} value={r.id}>{r.name}</option>
             ))}
           </select>
         </div>
@@ -187,6 +195,7 @@ export default function Dashboard() {
           sessionExercises.map((exercise, exIndex) => (
             <div key={exercise.sessionId} className="exercise-card card">
               <div className="exercise-header">
+                {exercise.image && <img className="exercise-image" src={exercise.image} alt="" loading="lazy" />}
                 <div className="exercise-info">
                   <h3>{exercise.name}</h3>
                   <span className="muscle-tag">{exercise.muscle}</span>

@@ -1,14 +1,15 @@
 import { useState } from 'react';
-import { useLocalStorage } from '../hooks/useLocalStorage';
-import { defaultExercises, muscleGroups } from '../data/defaultExercises';
+import { useRoutineStorage } from '../hooks/useRoutineStorage';
+import { useExercises } from '../hooks/useExercises';
+import { emptyTarget, normalizeRoutine } from '../data/routineStorage';
 import { Plus, X, Trash2, Edit2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import ConfirmDialog from '../components/ConfirmDialog';
 import './Routines.css';
 
 export default function Routines() {
-  const [routines, setRoutines] = useLocalStorage('routines', []);
-  const [exercises] = useLocalStorage('exercises', defaultExercises);
+  const [routines, setRoutines] = useRoutineStorage('routines', []);
+  const { exercises } = useExercises();
   const [showModal, setShowModal] = useState(false);
   const [editingRoutine, setEditingRoutine] = useState(null);
   const [newRoutine, setNewRoutine] = useState({ name: '', exercises: [] });
@@ -22,7 +23,7 @@ export default function Routines() {
   };
 
   const openEditRoutine = (routine) => {
-    setNewRoutine({ ...routine, exercises: [...routine.exercises] });
+    setNewRoutine({ ...routine, exercises: routine.exercises.map(ex => ({ ...ex, target: { ...ex.target } })) });
     setEditingRoutine(routine);
     setShowModal(true);
   };
@@ -39,10 +40,10 @@ export default function Routines() {
 
     if (editingRoutine) {
       setRoutines(routines.map(r =>
-        r.id === editingRoutine.id ? { ...newRoutine, name: newRoutine.name.trim(), id: editingRoutine.id } : r
+        r.id === editingRoutine.id ? normalizeRoutine({ ...newRoutine, name: newRoutine.name.trim(), id: editingRoutine.id }) : r
       ));
     } else {
-      setRoutines([...routines, { ...newRoutine, name: newRoutine.name.trim(), id: uuidv4() }]);
+      setRoutines([...routines, normalizeRoutine({ ...newRoutine, name: newRoutine.name.trim(), id: uuidv4() })]);
     }
 
     closeModal();
@@ -63,7 +64,7 @@ export default function Routines() {
   const addExerciseToRoutine = (exercise) => {
     setNewRoutine({
       ...newRoutine,
-      exercises: [...newRoutine.exercises, exercise],
+      exercises: [...newRoutine.exercises, { ...exercise, target: emptyTarget() }],
     });
     setShowExercisePicker(false);
   };
@@ -199,7 +200,7 @@ export default function Routines() {
               </button>
             </div>
             <div className="exercise-list">
-              {muscleGroups.map(group => {
+              {[...new Set(exercises.map(ex => ex.muscle))].sort().map(group => {
                 const groupExercises = exercises.filter(ex => ex.muscle === group);
                 if (groupExercises.length === 0) return null;
                 return (
