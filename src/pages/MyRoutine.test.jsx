@@ -85,6 +85,67 @@ describe('MyRoutine', () => {
     expect(screen.queryByRole('heading', { name: 'Remo' })).not.toBeInTheDocument();
   });
 
+  it('shows the latest matching session with each set preserved', async () => {
+    persistRoutines([{
+      id: 'push',
+      name: 'Empuje',
+      exercises: [{ id: 'bench', name: 'Press banca' }],
+    }]);
+    window.localStorage.setItem('sessions', JSON.stringify([
+      {
+        id: 'old',
+        routineId: 'push',
+        date: '2026-08-01',
+        exercises: [{ id: 'bench', name: 'Press banca', sets: [{ id: 'old-set', weight: '50', reps: '10' }] }],
+      },
+      {
+        id: 'latest',
+        routineId: 'push',
+        date: '2026-08-20',
+        exercises: [{
+          id: 'bench',
+          name: 'Press banca',
+          sets: [
+            { id: 'set-1', weight: '60', reps: '8' },
+            { id: 'set-2', weight: '65', reps: '5' },
+          ],
+        }],
+      },
+      {
+        id: 'other-routine',
+        routineId: 'pull',
+        date: '2026-08-30',
+        exercises: [{ id: 'bench', name: 'Press banca', sets: [{ weight: '100', reps: '1' }] }],
+      },
+    ]));
+
+    const user = userEvent.setup();
+    renderMyRoutine('/my-routine/push');
+    await user.click(screen.getByRole('button', { name: /Press banca/i }));
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByText(/Última sesión en Empuje/)).toBeInTheDocument();
+    expect(screen.getByText(/20 ago 2026/)).toBeInTheDocument();
+    expect(screen.getByText((_, element) => element?.textContent === '2 series')).toBeInTheDocument();
+    expect(screen.getByText('60 kg × 8 reps')).toBeInTheDocument();
+    expect(screen.getByText('65 kg × 5 reps')).toBeInTheDocument();
+    expect(screen.queryByText('100 kg × 1 reps')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Cerrar' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Press banca' })).toBeInTheDocument();
+  });
+
+  it('shows an empty state when the exercise has no session history', async () => {
+    persistRoutines([{ id: 'push', name: 'Empuje', exercises: [{ id: 'bench', name: 'Press banca' }] }]);
+    const user = userEvent.setup();
+
+    renderMyRoutine('/my-routine/push');
+    await user.click(screen.getByRole('button', { name: /Press banca/i }));
+
+    expect(screen.getByText('No hay historial para este ejercicio')).toBeInTheDocument();
+  });
+
   it('guides an empty selected routine to Rutinas', async () => {
     persistRoutines([{ id: 'empty', name: 'Descanso', exercises: [] }]);
     const user = userEvent.setup();

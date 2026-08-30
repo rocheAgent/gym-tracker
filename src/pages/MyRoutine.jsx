@@ -1,4 +1,5 @@
-import { ArrowLeft, ChevronRight, ClipboardList } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { ArrowLeft, ChevronRight, ClipboardList, X } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { useRoutineStorage } from '../hooks/useRoutineStorage';
 import './MyRoutine.css';
@@ -15,9 +16,98 @@ function Target({ target }) {
   ) : null;
 }
 
+function formatDate(dateStr) {
+  try {
+    return new Date(`${dateStr}T00:00:00`).toLocaleDateString('es-ES', {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    });
+  } catch {
+    return dateStr;
+  }
+}
+
+function latestExerciseSession(sessions, routineId, exerciseId) {
+  return [...sessions]
+    .filter(session => session.routineId === routineId)
+    .filter(session => session.exercises?.some(exercise => exercise.id === exerciseId))
+    .sort((a, b) => {
+      const dateDifference = new Date(b.date) - new Date(a.date);
+      return dateDifference || new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+    })[0] || null;
+}
+
+function ExerciseHistoryModal({ routine, exercise, session, onClose }) {
+  const sessionExercise = session?.exercises.find(item => item.id === exercise.id);
+
+  useEffect(() => {
+    const handleKeyDown = event => {
+      if (event.key === 'Escape') onClose();
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div
+        className="modal exercise-history-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="exercise-history-title"
+        onClick={event => event.stopPropagation()}
+      >
+        <div className="modal-header">
+          <div>
+            <h2 id="exercise-history-title">{exercise.name}</h2>
+            <p className="exercise-history-context">Última sesión en {routine.name}</p>
+          </div>
+          <button className="btn-ghost" aria-label="Cerrar" onClick={onClose}>
+            <X size={20} />
+          </button>
+        </div>
+
+        <div className="modal-body">
+          {!session ? (
+            <div className="empty-state exercise-history-empty">
+              <p>No hay historial para este ejercicio</p>
+              <p className="hint">Registra una sesión con esta rutina para ver tu rendimiento.</p>
+            </div>
+          ) : (
+            <div className="exercise-history-details">
+              <div className="exercise-history-date">
+                <span className="label">Fecha</span>
+                <strong>{formatDate(session.date)}</strong>
+              </div>
+              <div className="exercise-history-summary">
+                <span><strong>{sessionExercise.sets.length}</strong> series</span>
+                <span><strong>{sessionExercise.sets.map(set => set.reps ?? '-').join(', ')}</strong> reps</span>
+              </div>
+              <div className="exercise-history-sets">
+                <span className="label">Series registradas</span>
+                {sessionExercise.sets.map((set, index) => (
+                  <div className="exercise-history-set" key={set.id || index}>
+                    <span>Serie {index + 1}</span>
+                    <strong>{set.weight ?? '-'} kg × {set.reps ?? '-'} reps</strong>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function MyRoutine() {
   const { routineId } = useParams();
   const [routines] = useRoutineStorage('routines', []);
+  const [sessions] = useRoutineStorage('sessions', []);
+  const [selectedExercise, setSelectedExercise] = useState(null);
   const selectedRoutine = routineId ? routines.find(routine => routine.id === routineId) : null;
 
   if (routineId) {
@@ -58,7 +148,11 @@ export default function MyRoutine() {
         ) : (
           <div className="my-routine-exercises">
             {selectedRoutine.exercises.map((exercise, index) => (
-              <div className="my-routine-exercise card" key={`${exercise.id}-${index}`}>
+                <button
+                  className="my-routine-exercise card"
+                  key={`${exercise.id}-${index}`}
+                  onClick={() => setSelectedExercise(exercise)}
+                >
                 <div>
                   <h2>{exercise.name}</h2>
                   <div className="my-routine-meta">
@@ -67,9 +161,18 @@ export default function MyRoutine() {
                   </div>
                 </div>
                 <Target target={exercise.target} />
-              </div>
-            ))}
+                </button>
+              ))}
           </div>
+        )}
+
+        {selectedExercise && (
+          <ExerciseHistoryModal
+            routine={selectedRoutine}
+            exercise={selectedExercise}
+            session={latestExerciseSession(sessions, selectedRoutine.id, selectedExercise.id)}
+            onClose={() => setSelectedExercise(null)}
+          />
         )}
       </div>
     );
