@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRoutineStorage } from '../hooks/useRoutineStorage';
 import { useExercises } from '../hooks/useExercises';
 import { emptyTarget, normalizeRoutine } from '../data/routineStorage';
 import { Plus, X, Trash2, Edit2, Search, ChevronDown } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import ConfirmDialog from '../components/ConfirmDialog';
+import ModalPortal from '../components/ModalPortal';
+import ScrollToTopButton from '../components/ScrollToTopButton';
 import './Routines.css';
 
 export default function Routines() {
@@ -17,6 +19,7 @@ export default function Routines() {
   const [exerciseSearch, setExerciseSearch] = useState('');
   const [expandedMuscle, setExpandedMuscle] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const exerciseListRef = useRef(null);
 
   const openNewRoutine = () => {
     setNewRoutine({ name: '', exercises: [] });
@@ -135,132 +138,155 @@ export default function Routines() {
       )}
 
       {showModal && (
-        <div className="modal-overlay modal-overlay--routine" onClick={closeModal}>
-          <div className="modal routine-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>{editingRoutine ? 'Editar Rutina' : 'Nueva Rutina'}</h2>
-              <button className="btn-ghost" onClick={closeModal}>
-                <X size={20} />
-              </button>
-            </div>
-
-            <div className="modal-body">
-              <div className="input-group">
-                <label className="label">Nombre de la Rutina</label>
-                <input
-                  type="text"
-                  className="input"
-                  placeholder="Día pecho, Full body..."
-                  value={newRoutine.name}
-                  autoFocus
-                  onChange={(e) => setNewRoutine({ ...newRoutine, name: e.target.value })}
-                  onKeyDown={handleNameKeyDown}
-                />
+        <ModalPortal>
+          <div className="modal-overlay modal-overlay--routine" onClick={closeModal}>
+            <div
+              className="modal routine-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="routine-modal-title"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="modal-header">
+                <h2 id="routine-modal-title">{editingRoutine ? 'Editar Rutina' : 'Nueva Rutina'}</h2>
+                <button className="btn-ghost" onClick={closeModal} aria-label="Cerrar">
+                  <X size={20} />
+                </button>
               </div>
 
-              <div className="exercises-added">
-                <label className="label">
-                  Ejercicios
-                  {newRoutine.exercises.length > 0 && (
-                    <span className="exercises-count"> · {newRoutine.exercises.length}</span>
+              <div className="modal-body">
+                <div className="input-group">
+                  <label className="label" htmlFor="routine-editor-name">Nombre de la Rutina</label>
+                  <input
+                    id="routine-editor-name"
+                    type="text"
+                    className="input"
+                    placeholder="Día pecho, Full body..."
+                    value={newRoutine.name}
+                    data-modal-initial-focus="true"
+                    autoFocus
+                    onChange={(e) => setNewRoutine({ ...newRoutine, name: e.target.value })}
+                    onKeyDown={handleNameKeyDown}
+                  />
+                </div>
+
+                <div className="exercises-added">
+                  <label className="label">
+                    Ejercicios
+                    {newRoutine.exercises.length > 0 && (
+                      <span className="exercises-count"> · {newRoutine.exercises.length}</span>
+                    )}
+                  </label>
+                  {newRoutine.exercises.length === 0 ? (
+                    <p className="no-exercises">No hay ejercicios agregados</p>
+                  ) : (
+                    <div className="exercise-tags">
+                      {newRoutine.exercises.map((ex, i) => (
+                        <span key={ex.id + '-' + i} className="exercise-tag">
+                          {ex.name}
+                            <button
+                              aria-label={`Eliminar ${ex.name}`}
+                              onClick={() => removeExerciseFromRoutine(i)}
+                            >
+                            <X size={13} />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
                   )}
-                </label>
-                {newRoutine.exercises.length === 0 ? (
-                  <p className="no-exercises">No hay ejercicios agregados</p>
-                ) : (
-                  <div className="exercise-tags">
-                    {newRoutine.exercises.map((ex, i) => (
-                      <span key={ex.id + '-' + i} className="exercise-tag">
-                        {ex.name}
-                        <button onClick={() => removeExerciseFromRoutine(i)}>
-                          <X size={13} />
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                )}
+                </div>
+
+                <button
+                  className="btn btn-secondary add-ex-btn"
+                  onClick={openExercisePicker}
+                >
+                  <Plus size={16} />
+                  Agregar Ejercicio
+                </button>
               </div>
 
-              <button
-                className="btn btn-secondary add-ex-btn"
-                onClick={openExercisePicker}
-              >
-                <Plus size={16} />
-                Agregar Ejercicio
-              </button>
-            </div>
-
-            <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={closeModal}>
-                Cancelar
-              </button>
-              <button className="btn btn-primary" onClick={saveRoutine}>
-                {editingRoutine ? 'Guardar Cambios' : 'Crear Rutina'}
-              </button>
+              <div className="modal-footer">
+                <button className="btn btn-secondary" onClick={closeModal}>
+                  Cancelar
+                </button>
+                <button className="btn btn-primary" onClick={saveRoutine}>
+                  {editingRoutine ? 'Guardar Cambios' : 'Crear Rutina'}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </ModalPortal>
       )}
 
       {showExercisePicker && (
-        <div className="modal-overlay modal-overlay--nested modal-overlay--routine-picker" onClick={() => setShowExercisePicker(false)}>
-          <div className="modal routine-exercise-picker" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Seleccionar Ejercicio</h2>
-              <button className="btn-ghost" onClick={() => setShowExercisePicker(false)}>
-                <X size={20} />
-              </button>
-            </div>
-            <div className="exercise-picker-search">
-              <Search size={17} aria-hidden="true" />
-              <input
-                className="input"
-                type="search"
-                placeholder="Buscar ejercicio..."
-                aria-label="Buscar ejercicio"
-                value={exerciseSearch}
-                onChange={(e) => setExerciseSearch(e.target.value)}
-              />
-            </div>
-            <div className="exercise-list">
-              {[...new Set(exercises.map(ex => ex.muscle))].sort().map(group => {
-                const groupExercises = exercises.filter(exercise => {
-                  if (exercise.muscle !== group) return false;
-                  if (!exerciseSearch.trim()) return true;
+        <ModalPortal>
+          <div className="modal-overlay modal-overlay--nested modal-overlay--routine-picker" onClick={() => setShowExercisePicker(false)}>
+            <div
+              className="modal routine-exercise-picker"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="routine-exercise-picker-title"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="modal-header">
+                <h2 id="routine-exercise-picker-title">Seleccionar Ejercicio</h2>
+                <button className="btn-ghost" onClick={() => setShowExercisePicker(false)} aria-label="Cerrar">
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="exercise-picker-search">
+                <Search size={17} aria-hidden="true" />
+                <input
+                  className="input"
+                  type="search"
+                  placeholder="Buscar ejercicio..."
+                  aria-label="Buscar ejercicio"
+                  data-modal-initial-focus="true"
+                  value={exerciseSearch}
+                  onChange={(e) => setExerciseSearch(e.target.value)}
+                />
+              </div>
+              <div ref={exerciseListRef} className="exercise-list">
+                {[...new Set(exercises.map(ex => ex.muscle))].sort().map(group => {
+                  const groupExercises = exercises.filter(exercise => {
+                    if (exercise.muscle !== group) return false;
+                    if (!exerciseSearch.trim()) return true;
 
-                  const query = exerciseSearch.toLowerCase().trim();
-                  return [exercise.name, exercise.muscle, exercise.equipment]
-                    .filter(Boolean)
-                    .some(value => value.toLowerCase().includes(query));
-                });
-                if (groupExercises.length === 0) return null;
-                const isExpanded = Boolean(exerciseSearch.trim()) || expandedMuscle === group;
-                return (
-                  <div className="exercise-group" key={group}>
-                    <button
-                      className={`exercise-group-toggle ${isExpanded ? 'is-expanded' : ''}`}
-                      onClick={() => setExpandedMuscle(isExpanded && !exerciseSearch.trim() ? null : group)}
-                      aria-expanded={isExpanded}
-                    >
-                      <span>{group}</span>
-                      <ChevronDown size={17} />
-                    </button>
-                    {isExpanded && groupExercises.map(ex => (
-                        <button
-                          key={ex.id}
-                          className="exercise-option"
-                          onClick={() => addExerciseToRoutine(ex)}
-                        >
-                          <span className="ex-name">{ex.name}</span>
-                          <span className="ex-muscle">{ex.equipment}</span>
-                        </button>
-                    ))}
-                  </div>
-                );
-              })}
+                    const query = exerciseSearch.toLowerCase().trim();
+                    return [exercise.name, exercise.muscle, exercise.equipment]
+                      .filter(Boolean)
+                      .some(value => value.toLowerCase().includes(query));
+                  });
+                  if (groupExercises.length === 0) return null;
+                  const isExpanded = Boolean(exerciseSearch.trim()) || expandedMuscle === group;
+                  return (
+                    <div className="exercise-group" key={group}>
+                      <button
+                        className={`exercise-group-toggle ${isExpanded ? 'is-expanded' : ''}`}
+                        onClick={() => setExpandedMuscle(isExpanded && !exerciseSearch.trim() ? null : group)}
+                        aria-expanded={isExpanded}
+                      >
+                        <span>{group}</span>
+                        <ChevronDown size={17} />
+                      </button>
+                      {isExpanded && groupExercises.map(ex => (
+                          <button
+                            key={ex.id}
+                            className="exercise-option"
+                            onClick={() => addExerciseToRoutine(ex)}
+                          >
+                            <span className="ex-name">{ex.name}</span>
+                            <span className="ex-muscle">{ex.equipment}</span>
+                          </button>
+                      ))}
+                    </div>
+                  );
+                })}
+              </div>
+              <ScrollToTopButton scrollTargetRef={exerciseListRef} className="scroll-top-btn--contained" />
             </div>
           </div>
-        </div>
+        </ModalPortal>
       )}
 
       {confirmDelete && (

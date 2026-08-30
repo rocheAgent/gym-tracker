@@ -1,6 +1,6 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import Exercises from './Exercises';
 
@@ -33,5 +33,25 @@ describe('Exercises', () => {
       expect(routines[0].exercises[0].target).toEqual({ weight: '', sets: '', reps: '' });
     });
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('shows an accessible return-to-top button after scrolling the catalog', async () => {
+    const user = userEvent.setup();
+    const scrollTo = vi.fn();
+    window.scrollTo = scrollTo;
+    Object.defineProperty(window, 'scrollY', { configurable: true, value: 0 });
+
+    render(<Exercises />);
+
+    expect(screen.queryByRole('button', { name: 'Volver arriba' })).not.toBeInTheDocument();
+
+    Object.defineProperty(window, 'scrollY', { configurable: true, value: 301 });
+    fireEvent.scroll(window);
+
+    const returnButton = await screen.findByRole('button', { name: 'Volver arriba' });
+    await user.click(returnButton);
+
+    expect(scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
+    Object.defineProperty(window, 'scrollY', { configurable: true, value: 0 });
   });
 });

@@ -4,6 +4,7 @@ import { useExercises } from '../hooks/useExercises';
 import { Plus, X, Save, Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import ConfirmDialog from '../components/ConfirmDialog';
+import ModalPortal from '../components/ModalPortal';
 import './Dashboard.css';
 
 export default function Dashboard() {
@@ -280,40 +281,49 @@ export default function Dashboard() {
       )}
 
       {showExerciseSelect && (
-        <div className="modal-overlay" onClick={() => setShowExerciseSelect(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Seleccionar Ejercicio</h2>
-              <button
-                className="btn-ghost"
-                onClick={() => setShowExerciseSelect(false)}
-              >
-                <X size={20} />
-              </button>
-            </div>
-            <div className="exercise-list">
-              {muscleGroups.map(group => {
-                const groupExercises = exercises.filter(ex => ex.muscle === group);
-                if (groupExercises.length === 0) return null;
-                return (
-                  <div key={group}>
-                    <div className="exercise-group-label">{group}</div>
-                    {groupExercises.map(ex => (
-                      <button
-                        key={ex.id}
-                        className="exercise-option"
-                        onClick={() => addExercise(ex)}
-                      >
-                        <span className="ex-name">{ex.name}</span>
-                        <span className="ex-muscle">{ex.equipment}</span>
-                      </button>
-                    ))}
-                  </div>
-                );
-              })}
+        <ModalPortal>
+          <div className="modal-overlay" onClick={() => setShowExerciseSelect(false)}>
+            <div
+              className="modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="session-exercise-picker-title"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="modal-header">
+                <h2 id="session-exercise-picker-title">Seleccionar Ejercicio</h2>
+                <button
+                  className="btn-ghost"
+                  aria-label="Cerrar"
+                  onClick={() => setShowExerciseSelect(false)}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="exercise-list">
+                {muscleGroups.map(group => {
+                  const groupExercises = exercises.filter(ex => ex.muscle === group);
+                  if (groupExercises.length === 0) return null;
+                  return (
+                    <div key={group}>
+                      <div className="exercise-group-label">{group}</div>
+                      {groupExercises.map(ex => (
+                        <button
+                          key={ex.id}
+                          className="exercise-option"
+                          onClick={() => addExercise(ex)}
+                        >
+                          <span className="ex-name">{ex.name}</span>
+                          <span className="ex-muscle">{ex.equipment}</span>
+                        </button>
+                      ))}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
-        </div>
+        </ModalPortal>
       )}
 
       {confirmClear && (

@@ -5,6 +5,8 @@ import { emptyTarget, normalizeRoutine } from '../data/routineStorage';
 import { Plus, Search, X, Trash2, Check } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import ConfirmDialog from '../components/ConfirmDialog';
+import ModalPortal from '../components/ModalPortal';
+import ScrollToTopButton from '../components/ScrollToTopButton';
 import './Exercises.css';
 
 export default function Exercises() {
@@ -194,108 +196,124 @@ export default function Exercises() {
       <p className="media-attribution">
         Ilustraciones de Bryl Lim — <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer">CC BY-SA 4.0</a>
       </p>
+      <ScrollToTopButton />
 
       {showAddModal && (
-        <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Nuevo Ejercicio</h2>
-              <button className="btn-ghost" onClick={() => setShowAddModal(false)}>
-                <X size={20} />
-              </button>
-            </div>
-            <form className="modal-body" onSubmit={handleFormSubmit}>
-              <div className="input-group">
-                <label className="label">Nombre</label>
-                <input
-                  type="text"
-                  className="input"
-                  placeholder="Nombre del ejercicio"
-                  value={newExercise.name}
-                  autoFocus
-                  onChange={(e) => setNewExercise({ ...newExercise, name: e.target.value })}
-                />
+        <ModalPortal>
+          <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
+            <div
+              className="modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="new-exercise-title"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="modal-header">
+                <h2 id="new-exercise-title">Nuevo Ejercicio</h2>
+                <button className="btn-ghost" aria-label="Cerrar" onClick={() => setShowAddModal(false)}>
+                  <X size={20} />
+                </button>
               </div>
-              <div className="input-group">
-                <label className="label">Grupo Muscular</label>
-                <select
-                  className="input"
-                  value={newExercise.muscle}
-                  onChange={(e) => setNewExercise({ ...newExercise, muscle: e.target.value })}
-                >
-                  <option value="">Seleccionar...</option>
-                  {allGroups.map(m => (
-                    <option key={m} value={m}>{m}</option>
-                  ))}
-                </select>
+              <form className="modal-body" onSubmit={handleFormSubmit}>
+                <div className="input-group">
+                  <label className="label" htmlFor="new-exercise-name">Nombre</label>
+                  <input
+                    id="new-exercise-name"
+                    type="text"
+                    className="input"
+                    placeholder="Nombre del ejercicio"
+                    value={newExercise.name}
+                    data-modal-initial-focus="true"
+                    autoFocus
+                    onChange={(e) => setNewExercise({ ...newExercise, name: e.target.value })}
+                  />
+                </div>
+                <div className="input-group">
+                  <label className="label" htmlFor="new-exercise-muscle">Grupo Muscular</label>
+                  <select
+                    id="new-exercise-muscle"
+                    className="input"
+                    value={newExercise.muscle}
+                    onChange={(e) => setNewExercise({ ...newExercise, muscle: e.target.value })}
+                  >
+                    <option value="">Seleccionar...</option>
+                    {allGroups.map(m => (
+                      <option key={m} value={m}>{m}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="input-group">
+                  <label className="label" htmlFor="new-exercise-equipment">Equipamiento</label>
+                  <input
+                    id="new-exercise-equipment"
+                    type="text"
+                    className="input"
+                    placeholder="Barra, Mancuernas, Máquina..."
+                    value={newExercise.equipment}
+                    onChange={(e) => setNewExercise({ ...newExercise, equipment: e.target.value })}
+                  />
+                </div>
+              </form>
+              <div className="modal-footer">
+                <button className="btn btn-secondary" onClick={() => setShowAddModal(false)}>
+                  Cancelar
+                </button>
+                <button className="btn btn-primary" onClick={addExercise}>
+                  <Plus size={18} />
+                  Agregar
+                </button>
               </div>
-              <div className="input-group">
-                <label className="label">Equipamiento</label>
-                <input
-                  type="text"
-                  className="input"
-                  placeholder="Barra, Mancuernas, Máquina..."
-                  value={newExercise.equipment}
-                  onChange={(e) => setNewExercise({ ...newExercise, equipment: e.target.value })}
-                />
-              </div>
-            </form>
-            <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={() => setShowAddModal(false)}>
-                Cancelar
-              </button>
-              <button className="btn btn-primary" onClick={addExercise}>
-                <Plus size={18} />
-                Agregar
-              </button>
             </div>
           </div>
-        </div>
+        </ModalPortal>
       )}
 
       {showRoutineModal && (
-        <div className="modal-overlay" onClick={closeRoutineModal}>
-          <div
-            className="modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="create-routine-title"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="modal-header">
-              <h2 id="create-routine-title">Crear Rutina</h2>
-              <button className="btn-ghost" onClick={closeRoutineModal} aria-label="Cerrar">
-                <X size={20} />
-              </button>
+        <ModalPortal>
+          <div className="modal-overlay" onClick={closeRoutineModal}>
+            <div
+              className="modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="create-routine-title"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="modal-header">
+                <h2 id="create-routine-title">Crear Rutina</h2>
+                <button className="btn-ghost" onClick={closeRoutineModal} aria-label="Cerrar">
+                  <X size={20} />
+                </button>
+              </div>
+              <form className="modal-body" onSubmit={(e) => { e.preventDefault(); createRoutine(); }}>
+                <div className="input-group">
+                  <label className="label" htmlFor="routine-name">Nombre de la Rutina</label>
+                  <input
+                    id="routine-name"
+                    ref={routineNameInputRef}
+                    type="text"
+                    className="input"
+                    placeholder="Día pecho, Full body..."
+                    value={routineName}
+                    data-modal-initial-focus="true"
+                    autoFocus
+                    onChange={(e) => setRoutineName(e.target.value)}
+                  />
+                </div>
+                <p className="selected-routine-summary">
+                  {selectedExerciseIds.length} ejercicios seleccionados
+                </p>
+                <div className="modal-footer">
+                  <button type="button" className="btn btn-secondary" onClick={closeRoutineModal}>
+                    Cancelar
+                  </button>
+                  <button type="submit" className="btn btn-primary" disabled={!routineName.trim()}>
+                    Crear Rutina
+                  </button>
+                </div>
+              </form>
             </div>
-            <form className="modal-body" onSubmit={(e) => { e.preventDefault(); createRoutine(); }}>
-              <div className="input-group">
-                <label className="label" htmlFor="routine-name">Nombre de la Rutina</label>
-                <input
-                  id="routine-name"
-                  ref={routineNameInputRef}
-                  type="text"
-                  className="input"
-                  placeholder="Día pecho, Full body..."
-                  value={routineName}
-                  autoFocus
-                  onChange={(e) => setRoutineName(e.target.value)}
-                />
-              </div>
-              <p className="selected-routine-summary">
-                {selectedExerciseIds.length} ejercicios seleccionados
-              </p>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={closeRoutineModal}>
-                  Cancelar
-                </button>
-                <button type="submit" className="btn btn-primary" disabled={!routineName.trim()}>
-                  Crear Rutina
-                </button>
-              </div>
-            </form>
           </div>
-        </div>
+        </ModalPortal>
       )}
 
       {confirmDelete && (
