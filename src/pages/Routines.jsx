@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useRoutineStorage } from '../hooks/useRoutineStorage';
 import { useExercises } from '../hooks/useExercises';
 import { emptyTarget, normalizeRoutine } from '../data/routineStorage';
-import { Plus, X, Trash2, Edit2 } from 'lucide-react';
+import { Plus, X, Trash2, Edit2, Search, ChevronDown } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import ConfirmDialog from '../components/ConfirmDialog';
 import './Routines.css';
@@ -14,6 +14,8 @@ export default function Routines() {
   const [editingRoutine, setEditingRoutine] = useState(null);
   const [newRoutine, setNewRoutine] = useState({ name: '', exercises: [] });
   const [showExercisePicker, setShowExercisePicker] = useState(false);
+  const [exerciseSearch, setExerciseSearch] = useState('');
+  const [expandedMuscle, setExpandedMuscle] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
 
   const openNewRoutine = () => {
@@ -31,6 +33,8 @@ export default function Routines() {
   const closeModal = () => {
     setShowModal(false);
     setShowExercisePicker(false);
+    setExerciseSearch('');
+    setExpandedMuscle(null);
     setNewRoutine({ name: '', exercises: [] });
     setEditingRoutine(null);
   };
@@ -67,6 +71,14 @@ export default function Routines() {
       exercises: [...newRoutine.exercises, { ...exercise, target: emptyTarget() }],
     });
     setShowExercisePicker(false);
+    setExerciseSearch('');
+    setExpandedMuscle(null);
+  };
+
+  const openExercisePicker = () => {
+    setExerciseSearch('');
+    setExpandedMuscle(null);
+    setShowExercisePicker(true);
   };
 
   const removeExerciseFromRoutine = (index) => {
@@ -123,7 +135,7 @@ export default function Routines() {
       )}
 
       {showModal && (
-        <div className="modal-overlay" onClick={closeModal}>
+        <div className="modal-overlay modal-overlay--routine" onClick={closeModal}>
           <div className="modal routine-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2>{editingRoutine ? 'Editar Rutina' : 'Nueva Rutina'}</h2>
@@ -171,7 +183,7 @@ export default function Routines() {
 
               <button
                 className="btn btn-secondary add-ex-btn"
-                onClick={() => setShowExercisePicker(true)}
+                onClick={openExercisePicker}
               >
                 <Plus size={16} />
                 Agregar Ejercicio
@@ -191,30 +203,57 @@ export default function Routines() {
       )}
 
       {showExercisePicker && (
-        <div className="modal-overlay modal-overlay--nested" onClick={() => setShowExercisePicker(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-overlay modal-overlay--nested modal-overlay--routine-picker" onClick={() => setShowExercisePicker(false)}>
+          <div className="modal routine-exercise-picker" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2>Seleccionar Ejercicio</h2>
               <button className="btn-ghost" onClick={() => setShowExercisePicker(false)}>
                 <X size={20} />
               </button>
             </div>
+            <div className="exercise-picker-search">
+              <Search size={17} aria-hidden="true" />
+              <input
+                className="input"
+                type="search"
+                placeholder="Buscar ejercicio..."
+                aria-label="Buscar ejercicio"
+                value={exerciseSearch}
+                onChange={(e) => setExerciseSearch(e.target.value)}
+              />
+            </div>
             <div className="exercise-list">
               {[...new Set(exercises.map(ex => ex.muscle))].sort().map(group => {
-                const groupExercises = exercises.filter(ex => ex.muscle === group);
+                const groupExercises = exercises.filter(exercise => {
+                  if (exercise.muscle !== group) return false;
+                  if (!exerciseSearch.trim()) return true;
+
+                  const query = exerciseSearch.toLowerCase().trim();
+                  return [exercise.name, exercise.muscle, exercise.equipment]
+                    .filter(Boolean)
+                    .some(value => value.toLowerCase().includes(query));
+                });
                 if (groupExercises.length === 0) return null;
+                const isExpanded = Boolean(exerciseSearch.trim()) || expandedMuscle === group;
                 return (
-                  <div key={group}>
-                    <div className="exercise-group-label">{group}</div>
-                    {groupExercises.map(ex => (
-                      <button
-                        key={ex.id}
-                        className="exercise-option"
-                        onClick={() => addExerciseToRoutine(ex)}
-                      >
-                        <span className="ex-name">{ex.name}</span>
-                        <span className="ex-muscle">{ex.equipment}</span>
-                      </button>
+                  <div className="exercise-group" key={group}>
+                    <button
+                      className={`exercise-group-toggle ${isExpanded ? 'is-expanded' : ''}`}
+                      onClick={() => setExpandedMuscle(isExpanded && !exerciseSearch.trim() ? null : group)}
+                      aria-expanded={isExpanded}
+                    >
+                      <span>{group}</span>
+                      <ChevronDown size={17} />
+                    </button>
+                    {isExpanded && groupExercises.map(ex => (
+                        <button
+                          key={ex.id}
+                          className="exercise-option"
+                          onClick={() => addExerciseToRoutine(ex)}
+                        >
+                          <span className="ex-name">{ex.name}</span>
+                          <span className="ex-muscle">{ex.equipment}</span>
+                        </button>
                     ))}
                   </div>
                 );
