@@ -1,17 +1,25 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useExercises } from '../hooks/useExercises';
-import { Plus, Search, X, Trash2 } from 'lucide-react';
+import { useRoutineStorage } from '../hooks/useRoutineStorage';
+import { emptyTarget, normalizeRoutine } from '../data/routineStorage';
+import { Plus, Search, X, Trash2, Check } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import ConfirmDialog from '../components/ConfirmDialog';
 import './Exercises.css';
 
 export default function Exercises() {
   const { exercises, setExercises, isLoading } = useExercises();
+  const [routines, setRoutines] = useRoutineStorage('routines', []);
   const [search, setSearch] = useState('');
   const [filterMuscle, setFilterMuscle] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showRoutineModal, setShowRoutineModal] = useState(false);
+  const [selectedExerciseIds, setSelectedExerciseIds] = useState([]);
+  const [routineName, setRoutineName] = useState('');
   const [newExercise, setNewExercise] = useState({ name: '', muscle: '', equipment: '' });
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const createRoutineButtonRef = useRef(null);
+  const routineNameInputRef = useRef(null);
 
   const filteredExercises = exercises.filter(ex => {
     const matchesSearch = ex.name.toLowerCase().includes(search.toLowerCase());
@@ -39,7 +47,56 @@ export default function Exercises() {
 
   const deleteExercise = (id) => {
     setExercises(exercises.filter(ex => ex.id !== id));
+    setSelectedExerciseIds(selectedExerciseIds.filter(exerciseId => exerciseId !== id));
     setConfirmDelete(null);
+  };
+
+  const toggleExercise = (id) => {
+    setSelectedExerciseIds(current => current.includes(id)
+      ? current.filter(exerciseId => exerciseId !== id)
+      : [...current, id]);
+  };
+
+  const openRoutineModal = () => {
+    setRoutineName('');
+    setShowRoutineModal(true);
+  };
+
+  const closeRoutineModal = () => {
+    setShowRoutineModal(false);
+    setRoutineName('');
+  };
+
+  useEffect(() => {
+    if (!showRoutineModal) return undefined;
+
+    routineNameInputRef.current?.focus();
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') closeRoutineModal();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      createRoutineButtonRef.current?.focus();
+    };
+  }, [showRoutineModal]);
+
+  const createRoutine = () => {
+    const name = routineName.trim();
+    if (!name) return;
+
+    const selectedExercises = selectedExerciseIds
+      .map(id => exercises.find(exercise => exercise.id === id))
+      .filter(Boolean)
+      .map(exercise => ({ ...exercise, target: emptyTarget() }));
+
+    setRoutines([...routines, normalizeRoutine({
+      id: uuidv4(),
+      name,
+      exercises: selectedExercises,
+    })]);
+    setSelectedExerciseIds([]);
+    closeRoutineModal();
   };
 
   // Get unique muscle groups from current exercises (may include user-added groups)
@@ -52,10 +109,21 @@ export default function Exercises() {
           <h1>Ejercicios</h1>
           <p className="subtitle">{isLoading ? 'Cargando catálogo...' : `${exercises.length} ejercicios disponibles`}</p>
         </div>
-        <button className="btn btn-primary" onClick={() => setShowAddModal(true)}>
-          <Plus size={18} />
-          Nuevo
-        </button>
+        <div className="header-actions">
+          <button
+            ref={createRoutineButtonRef}
+            className="btn btn-primary"
+            onClick={openRoutineModal}
+            disabled={selectedExerciseIds.length === 0}
+          >
+            <Check size={18} />
+            Crear rutina{selectedExerciseIds.length > 0 && ` (${selectedExerciseIds.length})`}
+          </button>
+          <button className="btn btn-primary" onClick={() => setShowAddModal(true)}>
+            <Plus size={18} />
+            Nuevo
+          </button>
+        </div>
       </header>
 
       <div className="filters">
@@ -90,7 +158,17 @@ export default function Exercises() {
       ) : (
         <div className="exercises-grid">
           {filteredExercises.map(ex => (
-            <div key={ex.id} className="exercise-item card">
+            <div key={ex.id} className={`exercise-item card ${selectedExerciseIds.includes(ex.id) ? 'is-selected' : ''}`}>
+              <label className="exercise-select" aria-label={`Seleccionar ${ex.name}`}>
+                <input
+                  type="checkbox"
+                  checked={selectedExerciseIds.includes(ex.id)}
+                  onChange={() => toggleExercise(ex.id)}
+                />
+                <span className="selection-indicator" aria-hidden="true">
+                  {selectedExerciseIds.includes(ex.id) && <Check size={13} />}
+                </span>
+              </label>
               {ex.image && <img className="exercise-image" src={ex.image} alt="" loading="lazy" />}
               <div className="exercise-info">
                 <h3>{ex.name}</h3>
@@ -113,7 +191,9 @@ export default function Exercises() {
         </div>
       )}
 
-      <p className="media-attribution">© Gym visual — https://gymvisual.com/</p>
+      <p className="media-attribution">
+        Ilustraciones de Bryl Lim — <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer">CC BY-SA 4.0</a>
+      </p>
 
       {showAddModal && (
         <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
@@ -169,6 +249,51 @@ export default function Exercises() {
                 Agregar
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showRoutineModal && (
+        <div className="modal-overlay" onClick={closeRoutineModal}>
+          <div
+            className="modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="create-routine-title"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-header">
+              <h2 id="create-routine-title">Crear Rutina</h2>
+              <button className="btn-ghost" onClick={closeRoutineModal} aria-label="Cerrar">
+                <X size={20} />
+              </button>
+            </div>
+            <form className="modal-body" onSubmit={(e) => { e.preventDefault(); createRoutine(); }}>
+              <div className="input-group">
+                <label className="label" htmlFor="routine-name">Nombre de la Rutina</label>
+                <input
+                  id="routine-name"
+                  ref={routineNameInputRef}
+                  type="text"
+                  className="input"
+                  placeholder="Día pecho, Full body..."
+                  value={routineName}
+                  autoFocus
+                  onChange={(e) => setRoutineName(e.target.value)}
+                />
+              </div>
+              <p className="selected-routine-summary">
+                {selectedExerciseIds.length} ejercicios seleccionados
+              </p>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={closeRoutineModal}>
+                  Cancelar
+                </button>
+                <button type="submit" className="btn btn-primary" disabled={!routineName.trim()}>
+                  Crear Rutina
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

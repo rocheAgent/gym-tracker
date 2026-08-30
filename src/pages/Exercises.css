@@ -21,6 +21,18 @@
   font-size: 14px;
 }
 
+.header-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.header-actions .btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 .filters {
   display: flex;
   gap: 12px;
@@ -62,6 +74,55 @@
   align-items: flex-start;
   padding: 14px 16px;
   gap: 12px;
+}
+
+.exercise-item.is-selected {
+  border-color: var(--accent-red);
+  background: var(--bg-tertiary);
+}
+
+.exercise-select {
+  position: relative;
+  display: flex;
+  flex: 0 0 22px;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  cursor: pointer;
+}
+
+.exercise-select input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.selection-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: white;
+}
+
+.exercise-select input:checked + .selection-indicator {
+  background: var(--accent-red);
+  border-color: var(--accent-red);
+}
+
+.exercise-select input:focus-visible + .selection-indicator {
+  outline: 2px solid var(--accent-red);
+  outline-offset: 2px;
+}
+
+.selected-routine-summary {
+  margin-top: 16px;
+  color: var(--text-secondary);
+  font-size: 14px;
 }
 
 .exercise-image {
@@ -135,6 +196,15 @@
   .page-header {
     flex-direction: column;
     gap: 16px;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .header-actions .btn {
+    flex: 1;
   }
 
   .filters {
