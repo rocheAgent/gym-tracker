@@ -1,13 +1,12 @@
 import { useState } from 'react';
-import { useLocalStorage } from '../hooks/useLocalStorage';
-import { defaultExercises, muscleGroups } from '../data/defaultExercises';
+import { useExercises } from '../hooks/useExercises';
 import { Plus, Search, X, Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import ConfirmDialog from '../components/ConfirmDialog';
 import './Exercises.css';
 
 export default function Exercises() {
-  const [exercises, setExercises] = useLocalStorage('exercises', defaultExercises);
+  const { exercises, setExercises, isLoading } = useExercises();
   const [search, setSearch] = useState('');
   const [filterMuscle, setFilterMuscle] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
@@ -44,14 +43,14 @@ export default function Exercises() {
   };
 
   // Get unique muscle groups from current exercises (may include user-added groups)
-  const allGroups = [...new Set([...muscleGroups, ...exercises.map(e => e.muscle)])];
+  const allGroups = [...new Set(exercises.map(e => e.muscle))].sort();
 
   return (
     <div className="exercises-page fade-in">
       <header className="page-header">
         <div>
           <h1>Ejercicios</h1>
-          <p className="subtitle">{exercises.length} ejercicios disponibles</p>
+          <p className="subtitle">{isLoading ? 'Cargando catálogo...' : `${exercises.length} ejercicios disponibles`}</p>
         </div>
         <button className="btn btn-primary" onClick={() => setShowAddModal(true)}>
           <Plus size={18} />
@@ -92,6 +91,7 @@ export default function Exercises() {
         <div className="exercises-grid">
           {filteredExercises.map(ex => (
             <div key={ex.id} className="exercise-item card">
+              {ex.image && <img className="exercise-image" src={ex.image} alt="" loading="lazy" />}
               <div className="exercise-info">
                 <h3>{ex.name}</h3>
                 <div className="tags">
@@ -112,6 +112,8 @@ export default function Exercises() {
           ))}
         </div>
       )}
+
+      <p className="media-attribution">© Gym visual — https://gymvisual.com/</p>
 
       {showAddModal && (
         <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
@@ -142,7 +144,7 @@ export default function Exercises() {
                   onChange={(e) => setNewExercise({ ...newExercise, muscle: e.target.value })}
                 >
                   <option value="">Seleccionar...</option>
-                  {muscleGroups.map(m => (
+                  {allGroups.map(m => (
                     <option key={m} value={m}>{m}</option>
                   ))}
                 </select>
