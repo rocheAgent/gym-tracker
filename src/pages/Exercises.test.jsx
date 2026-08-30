@@ -10,15 +10,6 @@ beforeEach(() => {
   window.localStorage.clear();
 });
 
-afterEach(() => {
-  vi.restoreAllMocks();
-  if (originalMatchMedia) {
-    Object.defineProperty(window, 'matchMedia', { configurable: true, value: originalMatchMedia });
-  } else {
-    delete window.matchMedia;
-  }
-});
-
 describe('Exercises', () => {
   it('creates a routine with multiple selected exercises', async () => {
     const user = userEvent.setup();
