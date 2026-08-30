@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { ArrowLeft, ChevronRight, ClipboardList, Save, X } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { useRoutineStorage } from '../hooks/useRoutineStorage';
+import { useExercises } from '../hooks/useExercises';
 import './MyRoutine.css';
 
 function Target({ target }) {
@@ -54,7 +55,7 @@ function ExerciseHistoryModal({ routine, exercise, session, onClose, onSaveTarge
   }, [onClose]);
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="modal-overlay modal-overlay--history" onClick={onClose}>
       <div
         className="modal exercise-history-modal"
         role="dialog"
@@ -159,6 +160,7 @@ export default function MyRoutine() {
   const { routineId } = useParams();
   const [routines, setRoutines] = useRoutineStorage('routines', []);
   const [sessions] = useRoutineStorage('sessions', []);
+  const { exercises } = useExercises();
   const [selectedExercise, setSelectedExercise] = useState(null);
   const selectedRoutine = routineId ? routines.find(routine => routine.id === routineId) : null;
 
@@ -212,21 +214,29 @@ export default function MyRoutine() {
         ) : (
           <div className="my-routine-exercises">
             {selectedRoutine.exercises.map((exercise, index) => (
-                <button
+              <button
                   className="my-routine-exercise card"
                   key={`${exercise.id}-${index}`}
                   onClick={() => setSelectedExercise(exercise)}
                 >
-                <div>
-                  <h2>{exercise.name}</h2>
+                  {(exercise.image || exercises.find(catalogExercise => catalogExercise.id === exercise.id)?.image) && (
+                    <img
+                      className="my-routine-exercise-image"
+                      src={exercise.image || exercises.find(catalogExercise => catalogExercise.id === exercise.id)?.image}
+                      alt={exercise.name}
+                      loading="lazy"
+                    />
+                  )}
+                  <div>
+                    <h2>{exercise.name}</h2>
                   <div className="my-routine-meta">
                     {exercise.muscle && <span>{exercise.muscle}</span>}
                     {exercise.equipment && <span>{exercise.equipment}</span>}
                   </div>
-                </div>
-                <Target target={exercise.target} />
+                  </div>
+                  <Target target={exercise.target} />
                 </button>
-              ))}
+            ))}
           </div>
         )}
 

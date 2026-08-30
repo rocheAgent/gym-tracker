@@ -82,6 +82,15 @@
   padding: 18px 20px;
 }
 
+.my-routine-exercise-image {
+  width: 72px;
+  height: 72px;
+  flex: 0 0 72px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: var(--bg-tertiary);
+}
+
 .my-routine-exercise:hover {
   border-color: var(--accent-red);
 }

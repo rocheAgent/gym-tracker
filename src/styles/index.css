@@ -237,6 +237,21 @@ input, textarea, select {
   z-index: 1100;
 }
 
+.modal-overlay--routine {
+  align-items: flex-start;
+  padding-top: clamp(56px, 10vh, 120px);
+}
+
+.modal-overlay--routine-picker {
+  align-items: flex-start;
+  padding-top: clamp(80px, 12vh, 140px);
+}
+
+.modal-overlay--history {
+  align-items: flex-start;
+  padding-top: clamp(56px, 10vh, 120px);
+}
+
 .modal {
   background: var(--bg-secondary);
   border-radius: var(--radius-lg);
@@ -251,6 +266,11 @@ input, textarea, select {
 
 .routine-modal {
   max-width: 600px;
+}
+
+.routine-exercise-picker {
+  height: min(70vh, 700px);
+  max-height: calc(100vh - 160px);
 }
 
 .modal-header {
@@ -360,6 +380,21 @@ input, textarea, select {
     align-items: flex-end;
   }
 
+  .modal-overlay--routine {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .modal-overlay--routine-picker {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .modal-overlay--history {
+    padding: 0;
+    align-items: flex-end;
+  }
+
   .modal {
     max-height: 85vh;
     min-height: 50vh;
@@ -367,6 +402,11 @@ input, textarea, select {
     max-width: 100%;
     width: 100%;
     animation: modalSlideUpMobile 0.3s ease;
+  }
+
+  .routine-exercise-picker {
+    height: 85vh;
+    max-height: 85vh;
   }
 
   .modal-header {
