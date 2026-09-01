@@ -134,6 +134,10 @@
   background: var(--bg-tertiary);
 }
 
+.exercise-image-animation.exercise-image {
+  border-radius: 8px;
+}
+
 .exercise-info h3 {
   font-size: 14px;
   font-weight: 600;

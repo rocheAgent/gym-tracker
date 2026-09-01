@@ -1,0 +1,27 @@
+.exercise-image-animation {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  background: var(--bg-tertiary);
+}
+
+.exercise-image-animation__frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  animation: exercise-image-frame-cycle 1.8s steps(1, end) infinite;
+  animation-fill-mode: both;
+}
+
+@keyframes exercise-image-frame-cycle {
+  0%, 33.333% { opacity: 1; }
+  33.334%, 100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .exercise-image-animation__frame { animation: none; }
+  .exercise-image-animation__frame:first-child { opacity: 1; }
+}

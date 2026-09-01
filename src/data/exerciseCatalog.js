@@ -1,9 +1,12 @@
 import {
   exercises,
-  getAssetUrl,
   getExercise,
   searchExercises,
 } from '@bryllim/workout-guide';
+
+export function getFrameUrl(slug, index) {
+  return `https://cdn.jsdelivr.net/npm/@bryllim/workout-guide@1.0.0/assets/${slug}/frame-${index}.png`;
+}
 
 const muscleLabels = {
   Back: 'Espalda',
@@ -37,10 +40,10 @@ export function mapWorkoutExercise(exercise) {
     exerciseType: exercise.exerciseType,
     secondaryMuscles: exercise.secondaryMuscles,
     isStretch: exercise.isStretch,
-    image: getAssetUrl(exercise.slug, 1),
+    image: getFrameUrl(exercise.slug, 1),
     frames: exercise.frames.map(frame => ({
       ...frame,
-      url: getAssetUrl(exercise.slug, frame.index),
+      url: getFrameUrl(exercise.slug, frame.index),
     })),
     attribution: exercise.attribution,
   };
