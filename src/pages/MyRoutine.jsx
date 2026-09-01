@@ -41,9 +41,19 @@ function latestExerciseSession(sessions, routineId, exerciseId) {
     })[0] || null;
 }
 
-function ExerciseHistoryModal({ routine, exercise, session, onClose, onSaveTarget }) {
+function exerciseFrames(exercise, catalogExercises) {
+  if (exercise.frames?.length >= 3) return exercise.frames;
+
+  const catalogExercise = catalogExercises.find(item => item.id === exercise.id)
+    || catalogExercises.find(item => item.name.toLowerCase() === exercise.name?.toLowerCase());
+
+  return catalogExercise?.frames || [];
+}
+
+function ExerciseHistoryModal({ routine, exercise, frames, session, onClose, onSaveTarget }) {
   const sessionExercise = session?.exercises.find(item => item.id === exercise.id);
   const [target, setTarget] = useState({ weight: '', sets: '', reps: '', ...exercise.target });
+  const [comment, setComment] = useState(exercise.comment || '');
   const invalidSets = target.sets !== '' && (!Number.isInteger(Number(target.sets)) || Number(target.sets) < 1);
 
   useEffect(() => {
@@ -76,6 +86,20 @@ function ExerciseHistoryModal({ routine, exercise, session, onClose, onSaveTarge
           </div>
 
           <div className="modal-body">
+            {frames?.length >= 3 && (
+              <div className="exercise-animation" aria-label={`Animación de ${exercise.name}`}>
+                {frames.slice(0, 3).map((frame, index) => (
+                  <img
+                    key={frame.index || index}
+                    className="exercise-animation-frame"
+                    src={frame.url}
+                    alt=""
+                    aria-hidden="true"
+                    style={{ animationDelay: `${index * 0.6}s` }}
+                  />
+                ))}
+              </div>
+            )}
             <section className="exercise-targets">
               <h3>Objetivos para la próxima sesión</h3>
               <div className="exercise-target-fields">
@@ -120,6 +144,21 @@ function ExerciseHistoryModal({ routine, exercise, session, onClose, onSaveTarge
               {invalidSets && <p className="input-error">Las series deben ser un número entero mayor que cero.</p>}
             </section>
 
+            <section className="exercise-comments">
+              <h3>Comentarios del entrenamiento</h3>
+              <div className="input-group">
+                <label className="label" htmlFor="exercise-comment">¿Qué notaste durante el entrenamiento?</label>
+                <textarea
+                  id="exercise-comment"
+                  className="input"
+                  rows="4"
+                  value={comment}
+                  onChange={event => setComment(event.target.value)}
+                  placeholder="Escribe cualquier detalle que quieras recordar..."
+                />
+              </div>
+            </section>
+
             {!session ? (
               <div className="empty-state exercise-history-empty">
                 <p>No hay historial para este ejercicio</p>
@@ -149,9 +188,9 @@ function ExerciseHistoryModal({ routine, exercise, session, onClose, onSaveTarge
           </div>
           <div className="modal-footer">
             <button className="btn btn-secondary" onClick={onClose}>Cancelar</button>
-            <button className="btn btn-primary" disabled={invalidSets} onClick={() => onSaveTarget(target)}>
+            <button className="btn btn-primary" disabled={invalidSets} onClick={() => onSaveTarget(target, comment)}>
               <Save size={17} />
-              Guardar objetivos
+              Guardar cambios
             </button>
           </div>
         </div>
@@ -168,12 +207,12 @@ export default function MyRoutine() {
   const [selectedExercise, setSelectedExercise] = useState(null);
   const selectedRoutine = routineId ? routines.find(routine => routine.id === routineId) : null;
 
-  const saveExerciseTarget = target => {
+  const saveExerciseTarget = (target, comment) => {
     setRoutines(routines.map(routine => routine.id === selectedRoutine.id
       ? {
         ...routine,
         exercises: routine.exercises.map(exercise => exercise.id === selectedExercise.id
-          ? { ...exercise, target }
+          ? { ...exercise, target, comment }
           : exercise),
       }
       : routine));
@@ -248,6 +287,7 @@ export default function MyRoutine() {
           <ExerciseHistoryModal
             routine={selectedRoutine}
             exercise={selectedExercise}
+            frames={exerciseFrames(selectedExercise, exercises)}
             session={latestExerciseSession(sessions, selectedRoutine.id, selectedExercise.id)}
             onClose={() => setSelectedExercise(null)}
             onSaveTarget={saveExerciseTarget}

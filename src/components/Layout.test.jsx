@@ -16,11 +16,10 @@ function renderLayout() {
 }
 
 describe('Layout', () => {
-  it('shows navigation links for all workout destinations', () => {
+  it('shows the available workout navigation links without the unfinished session tab', () => {
     renderLayout();
 
     const destinations = [
-      ['Nueva Sesión', '/'],
       ['Ejercicios', '/exercises'],
       ['Rutinas', '/routines'],
       ['Mi rutina', '/my-routine'],
@@ -30,5 +29,6 @@ describe('Layout', () => {
     destinations.forEach(([name, href]) => {
       expect(screen.getByRole('link', { name })).toHaveAttribute('href', href);
     });
+    expect(screen.queryByRole('link', { name: 'Nueva Sesión' })).not.toBeInTheDocument();
   });
 });
