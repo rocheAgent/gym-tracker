@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import ConfirmDialog from '../components/ConfirmDialog';
 import ModalPortal from '../components/ModalPortal';
 import ScrollToTopButton from '../components/ScrollToTopButton';
+import ExerciseImage from '../components/ExerciseImage';
 import './Exercises.css';
 
 export default function Exercises() {
@@ -172,7 +173,7 @@ export default function Exercises() {
                   {selectedExerciseIds.includes(ex.id) && <Check size={13} />}
                 </span>
               </label>
-              {ex.image && <img className="exercise-image" src={ex.image} alt="" loading="lazy" />}
+              <ExerciseImage exercise={ex} className="exercise-image" />
               <div className="exercise-info">
                 <h3>{ex.name}</h3>
                 <div className="tags">

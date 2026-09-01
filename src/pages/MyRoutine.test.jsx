@@ -136,6 +136,21 @@ describe('MyRoutine', () => {
     expect(screen.getByRole('heading', { name: 'Press banca' })).toBeInTheDocument();
   });
 
+  it('shows the exercise guide animation when the exercise has frames', async () => {
+    persistRoutines([{
+      id: 'push',
+      name: 'Empuje',
+      exercises: [{ id: 'bench-press', name: 'Press banca' }],
+    }]);
+    const user = userEvent.setup();
+
+    renderMyRoutine('/my-routine/push');
+    await user.click(screen.getByRole('button', { name: /Press banca/i }));
+
+    expect(screen.getByLabelText('Animación de Press banca')).toBeInTheDocument();
+    expect(screen.getByLabelText('Animación de Press banca').querySelectorAll('img')).toHaveLength(3);
+  });
+
   it('shows an empty state when the exercise has no session history', async () => {
     persistRoutines([{ id: 'push', name: 'Empuje', exercises: [{ id: 'bench', name: 'Press banca' }] }]);
     const user = userEvent.setup();
@@ -159,10 +174,13 @@ describe('MyRoutine', () => {
     await user.type(screen.getByLabelText('Peso (kg)'), '60');
     await user.type(screen.getByLabelText('Series'), '4');
     await user.type(screen.getByLabelText('Repeticiones'), '8');
-    await user.click(screen.getByRole('button', { name: /Guardar objetivos/i }));
+    await user.type(screen.getByLabelText('¿Qué notaste durante el entrenamiento?'), 'Buen control del movimiento');
+    await user.click(screen.getByRole('button', { name: /Guardar cambios/i }));
 
     expect(JSON.parse(window.localStorage.getItem('routines'))[0].exercises[0].target)
       .toEqual({ weight: '60', sets: '4', reps: '8' });
+    expect(JSON.parse(window.localStorage.getItem('routines'))[0].exercises[0].comment)
+      .toBe('Buen control del movimiento');
     expect(JSON.parse(window.localStorage.getItem('sessions'))[0].exercises[0].sets[0])
       .toEqual({ weight: '50', reps: '10' });
   });
@@ -192,7 +210,7 @@ describe('MyRoutine', () => {
     await user.type(screen.getByLabelText('Series'), '1.5');
 
     expect(screen.getByText(/Las series deben ser/)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Guardar objetivos/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /Guardar cambios/i })).toBeDisabled();
   });
 
   it('guides an empty selected routine to Rutinas', async () => {

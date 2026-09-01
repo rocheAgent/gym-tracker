@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import ConfirmDialog from '../components/ConfirmDialog';
 import ModalPortal from '../components/ModalPortal';
 import './Dashboard.css';
+import ExerciseImage from '../components/ExerciseImage';
 
 export default function Dashboard() {
   const { exercises } = useExercises();
@@ -198,7 +199,7 @@ export default function Dashboard() {
           sessionExercises.map((exercise, exIndex) => (
             <div key={exercise.sessionId} className="exercise-card card">
               <div className="exercise-header">
-                {exercise.image && <img className="exercise-image" src={exercise.image} alt="" loading="lazy" />}
+                <ExerciseImage exercise={exercise} className="exercise-image" />
                 <div className="exercise-info">
                   <h3>{exercise.name}</h3>
                   <span className="muscle-tag">{exercise.muscle}</span>
